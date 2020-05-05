@@ -25,15 +25,15 @@ app.use(cors());
 // }
 
 // Routes
-app.use("/users", require("../server/routes/users"));
-app.use("/texts", require("../server/routes/texts"));
-app.use("/login", require("../server/routes/login"));
-app.use("/register", require("../server/routes/register"));
-app.use("/confirmation", require("../server/routes/confirmation"));
-app.use("/forgot-password", require("../server/routes/forgot-password"));
-app.use("/replays", require("../server/routes/replays"));
-app.use("/rankings", require("../server/routes/rankings"));
-app.use("/stats", require("../server/routes/stats"));
+app.use("/users", require("./routes/users"));
+app.use("/texts", require("./routes/texts"));
+app.use("/login", require("./routes/login"));
+app.use("/register", require("./routes/register"));
+app.use("/confirmation", require("./routes/confirmation"));
+app.use("/forgot-password", require("./routes/forgot-password"));
+app.use("/replays", require("./routes/replays"));
+app.use("/rankings", require("./routes/rankings"));
+app.use("/stats", require("./routes/stats"));
 
 // //grabbing user info -- DELETE LATER
 // app.get('/user', (req, res) => {

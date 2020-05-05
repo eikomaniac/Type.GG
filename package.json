@@ -6,11 +6,11 @@
     "node": "v8.10.0"
   },
   "scripts": {
-    "serve": "vue-cli-service serve client/src/main.js",
-    "build": "vue-cli-service build client/src/main.js",
-    "lint": "vue-cli-service lint client/src/main.js",
-    "start": "node server/server.js",
-    "dev": "nodemon server/server.js"
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "dependencies": {
     "axios": "^0.19.2",
@@ -67,5 +67,13 @@
   "description": "## Project setup ``` npm install ```",
   "main": "babel.config.js",
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eikomaniac/Type.GG.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eikomaniac/Type.GG/issues"
+  },
+  "homepage": "https://github.com/eikomaniac/Type.GG#readme"
 }
