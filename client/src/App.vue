@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" style="background-color: rgb(24, 23, 28);">
     <Navbar />
     <router-view />
     <footer class="footer"></footer>
