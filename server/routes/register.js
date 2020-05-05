@@ -44,8 +44,7 @@ Verify your email address to complete creating your Type.GG account.<br>
     .catch((err) => console.log(err));
 }
 
-router.post("/
-", (req, res) => {
+router.post("/", (req, res) => {
   let error = "";
 
   if (
