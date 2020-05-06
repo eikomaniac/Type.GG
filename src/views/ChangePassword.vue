@@ -63,7 +63,7 @@ export default {
       evt.preventDefault();
       axios
         .post(
-          `http://localhost:5000/forgot-password/${this.$route.params.token}`,
+          `http://api-type-gg.herokuapp.com/forgot-password/${this.$route.params.token}`,
           this.form
         )
         .then(

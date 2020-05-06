@@ -1,13 +1,24 @@
 <template>
   <div>
-    <b-table style="color: white" :items="leaderboard" :fields="fields" responsibe="sm">
+    <b-table
+      style="color: white"
+      :items="leaderboard"
+      :fields="fields"
+      responsibe="sm"
+    >
       <template v-slot:cell(rank)="data">#{{ data.index + 1 }}</template>
 
-      <template v-slot:cell(wpm)="data">{{ Math.trunc(data.item.wpm*100)/100 }}</template>
+      <template v-slot:cell(wpm)="data">{{
+        Math.trunc(data.item.wpm * 100) / 100
+      }}</template>
 
-      <template v-slot:cell(accuracy)="data">{{ Math.trunc(data.item.accuracy*100)/100 }}%</template>
+      <template v-slot:cell(accuracy)="data"
+        >{{ Math.trunc(data.item.accuracy * 100) / 100 }}%</template
+      >
 
-      <template v-slot:cell(performance)="data">{{ Math.trunc(data.item.performance) }}</template>
+      <template v-slot:cell(performance)="data">{{
+        Math.trunc(data.item.performance)
+      }}</template>
     </b-table>
   </div>
 </template>
@@ -23,31 +34,31 @@ export default {
         "RANK",
         {
           key: "wpm",
-          label: "WPM"
+          label: "WPM",
         },
         {
           key: "accuracy",
-          label: "ACCURACY"
+          label: "ACCURACY",
         },
         {
           key: "username",
-          label: "USERNAME"
+          label: "USERNAME",
         },
         {
           key: "performance",
-          label: "PERFORMANCE"
-        }
+          label: "PERFORMANCE",
+        },
       ],
       maxWPM: 0,
-      leaderboard: []
+      leaderboard: [],
     };
   },
   created() {
     axios
       .get(
-        `http://localhost:5000/replays/?q={"textId":"${this.textId}","isPB":"true"}`
+        `http://api-type-gg.herokuapp.com/replays/?q={"textId":"${this.textId}","isPB":"true"}`
       )
-      .then(res => {
+      .then((res) => {
         this.leaderboard = res.data;
         this.maxWPM = this.leaderboard[0] ? this.leaderboard[0].wpm : 0;
         for (var i = 0; i < this.leaderboard.length; i++) {
@@ -62,9 +73,8 @@ export default {
         console.log(this.leaderboard);
       });
   },
-  mounted() {}
+  mounted() {},
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

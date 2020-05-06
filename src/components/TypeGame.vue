@@ -6,7 +6,11 @@
         rel="stylesheet"
       />
       <span class="correctWords" v-if="correctWords" v-text="correctWords" />
-      <span class="highlightedCorrect" v-if="highlightedCorrect" v-text="highlightedCorrect" />
+      <span
+        class="highlightedCorrect"
+        v-if="highlightedCorrect"
+        v-text="highlightedCorrect"
+      />
       <span
         class="highlightedWrongInWord"
         v-if="highlightedWrongInWord"
@@ -18,50 +22,92 @@
         v-text="highlightedWrongAfter"
       />
       <span class="correctChars" v-if="correctChars" v-text="correctChars" />
-      <span class="wrongCharsInWord" v-if="wrongCharsInWord" v-text="wrongCharsInWord" />
-      <span class="wrongCharsAfter" v-if="wrongCharsAfter" v-text="wrongCharsAfter" />
       <span
-        :class="[areIncompleteChars ? 'incompleteChars' : null, showCaret ? 'currentCharClass' : null]"
+        class="wrongCharsInWord"
+        v-if="wrongCharsInWord"
+        v-text="wrongCharsInWord"
+      />
+      <span
+        class="wrongCharsAfter"
+        v-if="wrongCharsAfter"
+        v-text="wrongCharsAfter"
+      />
+      <span
+        :class="[
+          areIncompleteChars ? 'incompleteChars' : null,
+          showCaret ? 'currentCharClass' : null,
+        ]"
         v-text="currentChar"
       ></span>
-      <span class="incompleteChars" v-if="incompleteChars" v-text="incompleteChars.substring(1)"></span>
-      <span>{{ areIncompleteChars ? this.remainingText : this.remainingText.substring(1) }}</span>
+      <span
+        class="incompleteChars"
+        v-if="incompleteChars"
+        v-text="incompleteChars.substring(1)"
+      ></span>
+      <span>{{
+        areIncompleteChars
+          ? this.remainingText
+          : this.remainingText.substring(1)
+      }}</span>
     </div>
     <b-progress striped :animated="true" :max="text.length">
       <b-progress-bar
         class="no-transition"
-        :value="correctWords.length + correctChars.length + highlightedCorrect.length"
+        :value="
+          correctWords.length + correctChars.length + highlightedCorrect.length
+        "
         variant="success"
       ></b-progress-bar>
       <b-progress-bar
         class="no-transition"
-        :value="wrongCharsInWord.length + wrongCharsAfter.length + highlightedWrongInWord.length + highlightedWrongAfter.length - this.charsAfter.length"
+        :value="
+          wrongCharsInWord.length +
+            wrongCharsAfter.length +
+            highlightedWrongInWord.length +
+            highlightedWrongAfter.length -
+            this.charsAfter.length
+        "
         variant="danger"
       ></b-progress-bar>
     </b-progress>
-    <h3 style="margin-top:25px">WPM: {{ countdown == -1 ? Math.trunc(wpm) : 0 }}</h3>
-    <h4>Accuracy: {{ Math.trunc(accuracy*100)/100 }}%</h4>
+    <h3 style="margin-top:25px">
+      WPM: {{ countdown == -1 ? Math.trunc(wpm) : 0 }}
+    </h3>
+    <h4>Accuracy: {{ Math.trunc(accuracy * 100) / 100 }}%</h4>
     <h4 v-if="countdown > -1">{{ countdown > 0 ? countdown : "Go!" }}</h4>
     <b-progress striped :animated="true" :max="text.length">
-      <b-progress-bar class="no-transition" :value="pbCorrectChars" variant="primary"></b-progress-bar>
       <b-progress-bar
         class="no-transition"
-        :value="pbCorrectChars + pbWrongChars > text.length ? text.length - pbCorrectChars : pbWrongChars"
+        :value="pbCorrectChars"
+        variant="primary"
+      ></b-progress-bar>
+      <b-progress-bar
+        class="no-transition"
+        :value="
+          pbCorrectChars + pbWrongChars > text.length
+            ? text.length - pbCorrectChars
+            : pbWrongChars
+        "
         variant="danger"
       ></b-progress-bar>
     </b-progress>
-    <div v-if="capsLockOn" class="alert alert-warning">Warning: Caps-Lock on</div>
+    <div v-if="capsLockOn" class="alert alert-warning">
+      Warning: Caps-Lock on
+    </div>
     <div v-if="quoteFinished">
       <b-button variant="danger" @click="refresh">Retry (F5)</b-button>
-      <b-button variant="primary" :to="{name: 'solo'}">Next</b-button>
+      <b-button variant="primary" :to="{ name: 'solo' }">Next</b-button>
     </div>
-    <line-chart style="padding-right: 5px" :height="150" :chart-data="datacollection"></line-chart>
+    <line-chart
+      style="padding-right: 5px"
+      :height="150"
+      :chart-data="datacollection"
+    ></line-chart>
     <div v-if="pb.replayData" class="pb-container">
       <h3>Personal Best</h3>
-      WPM: {{ Math.trunc(pb.wpm*100)/100 }}
+      WPM: {{ Math.trunc(pb.wpm * 100) / 100 }}
       <br />
-      Accuracy: {{ Math.trunc(pb.accuracy*100)/100 }}%
-      <br />Achieved
+      Accuracy: {{ Math.trunc(pb.accuracy * 100) / 100 }}% <br />Achieved
       <timeago :datetime="pb.date" :autoUpdate="true"></timeago>
     </div>
   </div>
@@ -108,7 +154,7 @@ export default {
       pbCorrectChars: 0,
       pbWrongChars: 0,
       correctCharsTyped: 0,
-      timeoutQueue: []
+      timeoutQueue: [],
     };
   },
   methods: {
@@ -385,7 +431,7 @@ export default {
               borderColor: "rgb(255, 99, 132)",
               showLine: false,
               pointRadius: 5,
-              data: sectionWPMs
+              data: sectionWPMs,
             },
             {
               label: "Adjusted",
@@ -398,21 +444,21 @@ export default {
                   ((this.replayData[firstSectionSpaceIndex].time -
                     this.replayData[0].time) /
                     1000 /
-                    60)
-              ]
+                    60),
+              ],
             },
             {
               label: "Overall WPM",
               borderColor: "cyan",
-              data: overallWPMs
+              data: overallWPMs,
             },
             {
               label: "PB Overall WPM",
               borderColor: "grey",
               data: PBoverallWPMs,
-              fill: false
-            }
-          ]
+              fill: false,
+            },
+          ],
         };
       } else {
         this.datacollection = {
@@ -420,23 +466,23 @@ export default {
           datasets: [
             {
               label: "WPM",
-              borderColor: "rgb(255, 99, 132)"
+              borderColor: "rgb(255, 99, 132)",
             },
             {
               label: "Adjusted",
-              borderColor: "green"
+              borderColor: "green",
             },
             {
               label: "Overall WPM",
-              borderColor: "cyan"
+              borderColor: "cyan",
             },
             {
               label: "PB Overall WPM",
               borderColor: "grey",
               data: PBoverallWPMs,
-              fill: false
-            }
-          ]
+              fill: false,
+            },
+          ],
         };
       }
     },
@@ -534,7 +580,7 @@ export default {
         }
         this.replayData.push({
           key: e.key,
-          time: new Date().getTime() - this.startingTime
+          time: new Date().getTime() - this.startingTime,
         });
         this.caretStart = new Date().getTime();
         if (
@@ -584,7 +630,7 @@ export default {
               // If control key held down, delete until the start of the word
               this.replayData.push({
                 key: "CtrlBackspace",
-                time: new Date().getTime() - this.startingTime
+                time: new Date().getTime() - this.startingTime,
               });
               let length =
                 this.correctChars.length +
@@ -603,7 +649,7 @@ export default {
             ) {
               this.replayData.push({
                 key: "Backspace",
-                time: new Date().getTime() - this.startingTime
+                time: new Date().getTime() - this.startingTime,
               });
               this.backspace();
             }
@@ -695,20 +741,20 @@ export default {
           60;
         axios
           .post(
-            `http://localhost:5000/replays/`,
+            `http://api-type-gg.herokuapp.com/replays/`,
             {
               username: this.getUsername,
               textId: this.textId,
-              replayData: this.replayData
+              replayData: this.replayData,
             },
             {
               headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`
-              }
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
             }
           )
           .then(
-            res => {
+            (res) => {
               // console.log(res.status);
               if (!this.pb.wpm || res.data.wpm > this.pb.wpm) {
                 this.pb = res.data;
@@ -718,7 +764,7 @@ export default {
               this.increaseXP(res.data.text.length);
               this.reconstructReplay();
             },
-            err => {
+            (err) => {
               if (err.response.status === 401) {
                 localStorage.clear();
               }
@@ -754,7 +800,7 @@ export default {
     unhighlight: function() {
       this.replayData.push({
         key: "Unhighlight",
-        time: new Date().getTime() - this.startingTime
+        time: new Date().getTime() - this.startingTime,
       });
       this.correctChars += this.highlightedCorrect;
       this.wrongCharsInWord += this.highlightedWrongInWord;
@@ -767,7 +813,7 @@ export default {
       if (this.correctChars.length + this.wrongCharsInWord.length > 0) {
         this.replayData.push({
           key: "Highlight",
-          time: new Date().getTime() - this.startingTime
+          time: new Date().getTime() - this.startingTime,
         });
         this.highlightedCorrect += this.correctChars;
         this.highlightedWrongInWord += this.wrongCharsInWord;
@@ -927,7 +973,7 @@ export default {
           return;
         }
       }
-    }
+    },
   },
   computed: {
     ...mapGetters(["getUsername"]),
@@ -938,28 +984,30 @@ export default {
       return this.incompleteChars.length > 0
         ? this.incompleteChars[0]
         : this.remainingText[0];
-    }
+    },
   },
   created: function() {
     // ! make better back-end calls
-    axios.get(`http://localhost:5000/texts/${this.textId}`).then(res => {
-      this.text = res.data.text;
-      this.remainingText = this.text;
-      this.underlineNewWord();
-      axios
-        .get(
-          `http://localhost:5000/replays/?q={"username":"${this.getUsername}","isPB":"true","textId":"${this.textId}"}`
-        )
-        .then(res => {
-          if (res.data[0]) {
-            this.pb = res.data[0];
-            this.pbCorrectChars = 0;
-            this.pbWrongChars = 0;
-          }
-          this.reconstructReplay();
-        })
-        .catch(err => console.log(err));
-    });
+    axios
+      .get(`http://api-type-gg.herokuapp.com/texts/${this.textId}`)
+      .then((res) => {
+        this.text = res.data.text;
+        this.remainingText = this.text;
+        this.underlineNewWord();
+        axios
+          .get(
+            `http://api-type-gg.herokuapp.com/replays/?q={"username":"${this.getUsername}","isPB":"true","textId":"${this.textId}"}`
+          )
+          .then((res) => {
+            if (res.data[0]) {
+              this.pb = res.data[0];
+              this.pbCorrectChars = 0;
+              this.pbWrongChars = 0;
+            }
+            this.reconstructReplay();
+          })
+          .catch((err) => console.log(err));
+      });
   },
   mounted: function() {
     let self = this;
@@ -995,7 +1043,7 @@ export default {
     window.addEventListener("keyup", self.keyUpHandler);
     window.addEventListener("focus", self.focusHandler);
     window.addEventListener("onfocusout", self.onFocusOutHandler);
-  }
+  },
 };
 </script>
 

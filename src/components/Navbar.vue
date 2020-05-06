@@ -1,6 +1,10 @@
 <template>
   <div>
-    <b-navbar toggleable="lg" type="dark" style="background-color: rgb(86, 57, 173); height: 50px;">
+    <b-navbar
+      toggleable="lg"
+      type="dark"
+      style="background-color: rgb(86, 57, 173); height: 50px;"
+    >
       <div class="container">
         <b-navbar-brand style="white-space: pre-line;">
           <span>Type</span>
@@ -17,13 +21,21 @@
           </b-navbar-nav>
 
           <!-- Right aligned nav items -->
-          <b-navbar-nav style="margin-top: 10px" class="ml-auto" v-if="loggedIn">
+          <b-navbar-nav
+            style="margin-top: 10px"
+            class="ml-auto"
+            v-if="loggedIn"
+          >
             <b-nav-item-dropdown variant="primary" right>
               <!-- Using 'button-content' slot-->
               <template v-slot:button-content>
-                {{ getUsername }} | Lv: {{ level }} | {{ getXP - totalXPbeforeLevel }}/{{ xpToLevel }}xp
+                {{ getUsername }} | Lv: {{ level }} |
+                {{ getXP - totalXPbeforeLevel }}/{{ xpToLevel }}xp
                 <b-progress style="height:5px" :max="xpToLevel">
-                  <b-progress-bar :value="getXP - totalXPbeforeLevel" variant="success"></b-progress-bar>
+                  <b-progress-bar
+                    :value="getXP - totalXPbeforeLevel"
+                    variant="success"
+                  ></b-progress-bar>
                 </b-progress>
               </template>
               <b-dropdown-item to="/profile">Profile</b-dropdown-item>
@@ -45,7 +57,7 @@ export default {
   name: "Navbar",
   data() {
     return {
-      stats: {}
+      stats: {},
     };
   },
   computed: {
@@ -68,7 +80,7 @@ export default {
     },
     xpToLevel() {
       return Math.pow(25 * (this.level + 1), 2) - Math.pow(25 * this.level, 2);
-    }
+    },
   },
   methods: {
     ...mapActions(["clearUsername", "setXP"]),
@@ -79,21 +91,20 @@ export default {
     },
     xp(level) {
       return Math.pow(25 * level, 2) - Math.pow(25 * (level - 1), 2);
-    }
+    },
   },
   mounted() {
     let username = jwt.decode(localStorage.getItem("token")).username;
     axios
-      .get(`http://localhost:5000/stats/${username}`)
-      .then(res => {
+      .get(`http://api-type-gg.herokuapp.com/stats/${username}`)
+      .then((res) => {
         this.stats = res.data;
         console.log(res.data);
         this.setXP(this.stats.xp);
       })
-      .catch(err => console.log(err));
-  }
+      .catch((err) => console.log(err));
+  },
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

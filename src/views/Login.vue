@@ -1,27 +1,40 @@
 <template>
   <div class="container">
     <b-alert variant="danger" :show="error.length > 0" v-text="error" />
-    <b-alert
-      variant="success"
-      :show="flashSignedUpOnLogin"
-    >Your account has successfully been created!</b-alert>
-    <b-alert
-      variant="success"
-      :show="flashPasswordChanged"
-    >Your password has successfully been changed!</b-alert>
+    <b-alert variant="success" :show="flashSignedUpOnLogin"
+      >Your account has successfully been created!</b-alert
+    >
+    <b-alert variant="success" :show="flashPasswordChanged"
+      >Your password has successfully been changed!</b-alert
+    >
     <div class="header">sign in</div>
     <b-form @submit="onSubmit">
       <b-form-group label="username:">
-        <b-form-input v-model="form.username" type="text" required></b-form-input>
-        <b-form-invalid-feedback>usernames may only contain A-Z, a-z, and 0-9 and must be between 4-12 characters.</b-form-invalid-feedback>
+        <b-form-input
+          v-model="form.username"
+          type="text"
+          required
+        ></b-form-input>
+        <b-form-invalid-feedback
+          >usernames may only contain A-Z, a-z, and 0-9 and must be between 4-12
+          characters.</b-form-invalid-feedback
+        >
       </b-form-group>
 
       <b-form-group label="password:">
-        <b-form-input v-model="form.password" type="password" required></b-form-input>
-        <b-form-invalid-feedback>password must contain at least 6 characters</b-form-invalid-feedback>
+        <b-form-input
+          v-model="form.password"
+          type="password"
+          required
+        ></b-form-input>
+        <b-form-invalid-feedback
+          >password must contain at least 6 characters</b-form-invalid-feedback
+        >
       </b-form-group>
       <div style="text-align: center;">
-        <b-button :disabled="disabled" type="submit" variant="primary">sign in</b-button>
+        <b-button :disabled="disabled" type="submit" variant="primary"
+          >sign in</b-button
+        >
         <hr />
         <router-link to="forgot-password">Forgot your password?</router-link>
         <div>
@@ -43,35 +56,35 @@ export default {
     return {
       form: {
         username: "",
-        password: ""
+        password: "",
       },
       error: "",
       flashSignedUpOnLogin: false,
-      flashPasswordChanged: false
+      flashPasswordChanged: false,
     };
   },
   methods: {
     ...mapActions(["declareUsername"]),
     onSubmit(evt) {
       evt.preventDefault();
-      axios.post("http://localhost:5000/login", this.form).then(
-        res => {
+      axios.post("http://api-type-gg.herokuapp.com/login", this.form).then(
+        (res) => {
           if (res.status === 200) {
             localStorage.setItem("token", res.data.token);
             this.declareUsername(this.form.username);
             this.$router.push("/");
           }
         },
-        err => {
+        (err) => {
           this.error = err.response.data.error;
         }
       );
-    }
+    },
   },
   computed: {
     disabled() {
       return !(this.form.username.length > 0);
-    }
+    },
   },
   created() {
     if (localStorage.getItem("flashSignedUpOnLogin")) {
@@ -82,7 +95,7 @@ export default {
       this.flashPasswordChanged = true;
       localStorage.removeItem("flashPasswordChanged");
     }
-  }
+  },
 };
 </script>
 
