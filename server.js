@@ -5,7 +5,7 @@ const cors = require("cors");
 // const passport = require("passport");
 // const path = require('path');
 
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 5000;
 // const jwt = require('jsonwebtoken');
 // const http = require("http").Server(express);
 // const socketio = require("socket.io")(http);
