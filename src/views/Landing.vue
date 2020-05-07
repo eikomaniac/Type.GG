@@ -5,10 +5,10 @@
       <router-link to="/solo">Solo</router-link>
       <br />Singleplayer mode with online ranking
     </div>
-    <div>
+    <!-- <div>
       <router-link to="/solo">Multi</router-link>
       <br />Join others and race together
-    </div>
+    </div> -->
   </div>
 </template>
 <script>

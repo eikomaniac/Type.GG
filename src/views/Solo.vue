@@ -2,20 +2,20 @@
   <div class="container">
     <TypeGame v-if="textId" :textId="textId" />
     <br />
-    <TextLeaderboard v-if="textId" :textId="textId" />
+    <!-- <TextLeaderboard v-if="textId" :textId="textId" /> -->
   </div>
 </template>
 
 <script>
 import axios from "axios";
 import TypeGame from "../components/TypeGame";
-import TextLeaderboard from "../components/TextLeaderboard";
+// import TextLeaderboard from "../components/TextLeaderboard";
 
 export default {
   name: "Solo",
   components: {
     TypeGame,
-    TextLeaderboard
+    // TextLeaderboard
   },
   data() {
     return {

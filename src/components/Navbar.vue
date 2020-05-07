@@ -96,7 +96,7 @@ export default {
   mounted() {
     let username = jwt.decode(localStorage.getItem("token")).username;
     axios
-      .get(`http://api-type-gg.herokuapp.com/stats/${username}`)
+      .get(`https://api-type-gg.tk/stats/${username}`)
       .then((res) => {
         this.stats = res.data;
         console.log(res.data);

@@ -58,6 +58,7 @@
     </b-progress>
     <div v-if="capsLockOn" class="alert alert-warning">Warning: Caps-Lock on</div>
     <div v-if="quoteFinished">
+      Adjusted WPM: {{ Math.trunc(adjustedWPM*100)/100 }}<br>
       <b-button variant="danger" @click="refresh">Retry (F5)</b-button>
       <b-button variant="primary" :to="{ name: 'solo' }">Next</b-button>
     </div>
@@ -489,6 +490,9 @@ export default {
       this.wrongCharsInWord = "";
       this.wrongCharsAfter = "";
       this.incompleteChars = "";
+      this.highlightedCorrect = "";
+      this.highlightedWrongInWord = "";
+      this.highlightedWrongAfter = "";
       this.charsAfter = "";
       this.underlineNewWord();
       this.capsLockOn = false;
@@ -944,6 +948,14 @@ export default {
       return this.incompleteChars.length > 0
         ? this.incompleteChars[0]
         : this.remainingText[0];
+    },
+    adjustedWPM() {
+      return (
+        ((this.correctWords.length + this.correctChars.length) /
+          5 /
+          ((this.replayData[this.replayData.length-1].time - this.replayData[0].time) / 1000)) *
+        60
+      );
     }
   },
   created: function() {

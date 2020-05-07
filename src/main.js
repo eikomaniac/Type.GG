@@ -14,7 +14,7 @@ import Register from "./views/Register.vue";
 import Confirmation from "./views/Confirmation.vue";
 import ForgotPassword from "./views/ForgotPassword.vue";
 import ChangePassword from "./views/ChangePassword.vue";
-import Rankings from "./views/Rankings.vue";
+// import Rankings from "./views/Rankings.vue";
 import Profile from "./views/Profile.vue";
 import Login from "./views/Login.vue";
 import Solo from "./views/Solo.vue";
@@ -111,11 +111,11 @@ const router = new VueRouter({
       component: ForgotPassword,
       meta: { requiresLoggedOut: true },
     },
-    {
-      name: "rankings",
-      path: "/rankings",
-      component: Rankings,
-    },
+    // {
+    //   name: "rankings",
+    //   path: "/rankings",
+    //   component: Rankings,
+    // },
     // { path: "/multi", component: Multi },
     // { path: "/users/:username", component: User },
     { name: "error", path: "*", component: NotFound },

@@ -75,7 +75,7 @@ router.post("/", (req, res) => {
         (err, emailToken) => {
           if (error.length === 0) {
             forgotPassword(
-              `http://localhost:8080/forgot-password/${emailToken}`,
+              `https://typegg.me/forgot-password/${emailToken}`,
               req.body.email,
               existingUser._id
             )
