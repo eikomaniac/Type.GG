@@ -87,7 +87,7 @@ router.post("/", (req, res) => {
             (err, emailToken) => {
               if (error.length === 0) {
                 confirmation(
-                  `http://localhost:8080/confirmation/${emailToken}`,
+                  `http://typegg.me/confirmation/${emailToken}`,
                   req.body.email
                 )
                   .then(res.json({ success: true, message: "Email sent" }))
