@@ -5,36 +5,21 @@
         href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap"
         rel="stylesheet"
       />
-      <span class="correctWords" v-if="correctWords" v-text="correctWords" />
-      <span class="highlightedCorrect" v-if="highlightedCorrect" v-text="highlightedCorrect" />
-      <span
+      <span class="correctWords" v-if="correctWords" v-text="correctWords" /><span class="highlightedCorrect" v-if="highlightedCorrect" v-text="highlightedCorrect" /><span
         class="highlightedWrongInWord"
         v-if="highlightedWrongInWord"
         v-text="highlightedWrongInWord"
-      />
-      <span
+      /><span
         class="highlightedWrongAfter"
         v-if="highlightedWrongAfter"
         v-text="highlightedWrongAfter"
-      />
-      <span class="correctChars" v-if="correctChars" v-text="correctChars" />
-      <span class="wrongCharsInWord" v-if="wrongCharsInWord" v-text="wrongCharsInWord" />
-      <span class="wrongCharsAfter" v-if="wrongCharsAfter" v-text="wrongCharsAfter" />
-      <span
+      /><span class="correctChars" v-if="correctChars" v-text="correctChars" /><span class="wrongCharsInWord" v-if="wrongCharsInWord" v-text="wrongCharsInWord" /><span class="wrongCharsAfter" v-if="wrongCharsAfter" v-text="wrongCharsAfter" /><span
         :class="[
           areIncompleteChars ? 'incompleteChars' : null,
           showCaret ? 'currentCharClass' : null,
         ]"
         v-text="currentChar"
-      ></span>
-      <span class="incompleteChars" v-if="incompleteChars" v-text="incompleteChars.substring(1)"></span>
-      <span>
-        {{
-        areIncompleteChars
-        ? this.remainingText
-        : this.remainingText.substring(1)
-        }}
-      </span>
+      ></span><span class="incompleteChars" v-if="incompleteChars" v-text="incompleteChars.substring(1)"></span><span>{{areIncompleteChars ? this.remainingText : this.remainingText.substring(1)}}</span>
     </div>
     <b-progress striped :animated="true" :max="text.length">
       <b-progress-bar
