@@ -146,6 +146,7 @@ router.post("/", async (req, res) => {
     }
   }
   if (userInput !== text) {
+    console.log(req.body.replayData);
     console.log(userInput);
     errors.push(`Corrupt replay: ${userInput}`);
   }
@@ -163,7 +164,7 @@ router.post("/", async (req, res) => {
     .sort("-wpm")
     .catch((err) => console.log(err));
 
-  let isPB = true;
+  let isPB = false;
 
   if (errors.length > 0) {
     res.status(400).json({ errors });
