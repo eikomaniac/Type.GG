@@ -80,7 +80,7 @@ router.post("/", (req, res) => {
               existingUser._id
             )
               .then(res.status(200).json({ message: "Email sent" }))
-              .catch(console.error);
+              .catch(err => console.log(err));
           } else {
             res.status(400).json(error);
           }

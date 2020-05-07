@@ -91,7 +91,7 @@ router.post("/", (req, res) => {
                   req.body.email
                 )
                   .then(res.json({ success: true, message: "Email sent" }))
-                  .catch(console.error);
+                  .catch(err => console.log(err));
               } else {
                 res.json({ success: false, error });
               }

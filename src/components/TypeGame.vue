@@ -43,6 +43,7 @@
     </b-progress>
     <h3 style="margin-top:25px">WPM: {{ countdown == -1 ? Math.trunc(wpm) : 0 }}</h3>
     <h4>Accuracy: {{ Math.trunc(accuracy * 100) / 100 }}%</h4>
+    <h5 v-if="countdown <= 0 && !quoteFinished">Time: {{ Math.trunc((new Date().getTime() - startingTime) / 1000) }}</h5>
     <h4 v-if="countdown > -1">{{ countdown > 0 ? countdown : "Go!" }}</h4>
     <b-progress striped :animated="true" :max="text.length">
       <b-progress-bar class="no-transition" :value="pbCorrectChars" variant="primary"></b-progress-bar>
@@ -58,6 +59,7 @@
     </b-progress>
     <div v-if="capsLockOn" class="alert alert-warning">Warning: Caps-Lock on</div>
     <div v-if="quoteFinished">
+      Time: {{ Math.trunc(this.replayData[this.replayData.length - 1].time / 10) / 100}}<br>
       Adjusted WPM: {{ Math.trunc(adjustedWPM*100)/100 }}<br>
       <b-button variant="danger" @click="refresh">Retry (F5)</b-button>
       <b-button variant="primary" :to="{ name: 'solo' }">Next</b-button>
@@ -524,6 +526,7 @@ export default {
         this.refresh();
       }
       if (
+        this.quoteFinished ||
         this.countdown > 0 ||
         (this.correctChars.length + this.wrongCharsInWord.length === 0 &&
           e.key === " " &&

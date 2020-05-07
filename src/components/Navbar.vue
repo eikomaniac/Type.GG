@@ -8,8 +8,8 @@
       <div class="container">
         <b-navbar-brand style="white-space: pre-line;">
           <span>Type</span>
-          <b>GG</b>
-          <small v-if="pageName">{{ pageName }}</small>
+          <b>GG</b><small>alpha</small>
+          <!-- <small v-if="pageName">{{ pageName }}</small> -->
         </b-navbar-brand>
 
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>

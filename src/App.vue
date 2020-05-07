@@ -2,7 +2,7 @@
   <div id="app" style="background-color: rgb(24, 23, 28);">
     <Navbar />
     <router-view />
-    <footer class="footer"></footer>
+    <footer class="footer"><a target="_blank" href="https://discord.gg/64v955z">Discord</a> • TypeGG is currently in ALPHA - please report bugs on the Discord server! • <a target="_blank" href="https://forms.gle/dF2HSRTuhMXjeedh6">Contribute</a></footer>
   </div>
 </template>
 
@@ -44,6 +44,7 @@ footer {
   width: 100%;
   height: 50px;
   /* line-height: 60px; */
+  padding-top: 13px;
   background-color: rgb(36, 35, 43);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
