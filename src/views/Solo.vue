@@ -15,11 +15,11 @@ export default {
   name: "Solo",
   components: {
     TypeGame,
-    TextLeaderboard,
+    TextLeaderboard
   },
   data() {
     return {
-      textId: "",
+      textId: ""
     };
   },
   watch: {
@@ -28,15 +28,15 @@ export default {
         this.textId = "";
         this.getNewText();
       }
-    },
+    }
   },
   methods: {
     getNewText: function() {
-      axios.get(`http://api-type-gg.herokuapp.com/texts`).then((res) => {
+      axios.get(`https://api-type-gg.tk/texts`).then(res => {
         this.textId = res.data[Math.floor(Math.random() * res.data.length)]._id;
         this.$router.replace({ name: "solo", query: { text: this.textId } });
       });
-    },
+    }
   },
   created: function() {
     if (!this.$route.query.text) {
@@ -44,7 +44,7 @@ export default {
     } else {
       this.textId = this.$route.query.text;
     }
-  },
+  }
 };
 </script>
 

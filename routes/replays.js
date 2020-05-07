@@ -9,20 +9,21 @@ const Replay = require("../models/Replay");
 // TODO: add pagination
 // Get all replays
 router.get("/", async (req, res) => {
-  Replay.find()
-    .select("-replayData")
-    .exec((err, replays) => {
-      res.status(200).json(replays);
-    });
-  // let replays = {};
-  // if (!req.query.q) {
-  //   replays = await Replay.find().select("-replayData");
-  // } else {
-  //   replays = await Replay.find(
-  //     JSON.parse(req.query.q),
-  //     "_id username wpm accuracy date replayData"
-  //   ).sort("-wpm");
-  // }
+  try {
+    let replays;
+    if (!req.query.q) {
+      replays = await Replay.find().select("-replayData");
+    } else {
+      replays = await Replay.find(
+        JSON.parse(req.query.q),
+        "_id username wpm accuracy date replayData"
+      ).sort("-wpm");
+    }
+    res.status(200).json(replays);
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ message: err });
+  }
 });
 
 // TODO: make SAFE (don't show password etc.)

@@ -56,7 +56,7 @@ export default {
   created() {
     axios
       .get(
-        `http://api-type-gg.herokuapp.com/replays/?q={"textId":"${this.textId}","isPB":"true"}`
+        `https://api-type-gg.tk/replays/?q={"textId":"${this.textId}","isPB":"true"}`
       )
       .then((res) => {
         this.leaderboard = res.data;

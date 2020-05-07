@@ -25,7 +25,7 @@ app.use(cors());
 // }
 
 // Routes
-app.use("/users", require("./routes/users"));
+// app.use("/users", require("./routes/users"));
 app.use("/texts", require("./routes/texts"));
 app.use("/login", require("./routes/login"));
 app.use("/register", require("./routes/register"));

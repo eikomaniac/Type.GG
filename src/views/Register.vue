@@ -1,13 +1,11 @@
 <template>
   <div class="container">
-    <b-alert variant="danger" :show="flashExpiredLink"
-      >This link is invalid or has been expired.</b-alert
-    >
+    <b-alert variant="danger" :show="flashExpiredLink">This link is invalid or has been expired.</b-alert>
     <b-alert variant="danger" :show="error.length > 0" v-text="error" />
-    <b-alert variant="success" :show="success"
-      >A confirmation email has been sent to {{ emailSubmitted }}, please check
-      your email box.</b-alert
-    >
+    <b-alert variant="success" :show="success">
+      A confirmation email has been sent to {{ emailSubmitted }}, please check
+      your email box.
+    </b-alert>
     <div class="header">create an account</div>
     <b-form @submit="onSubmit">
       <b-form-group
@@ -42,9 +40,7 @@
       </div>
       <hr />
       <div style="text-align: center;">
-        <b-button :disabled="disabled" type="submit" variant="primary"
-          >continue</b-button
-        >
+        <b-button :disabled="disabled" type="submit" variant="primary">continue</b-button>
       </div>
     </b-form>
   </div>
@@ -61,12 +57,12 @@ export default {
       form: {
         email: "",
         confirmEmail: "",
-        captcha: "",
+        captcha: ""
       },
       emailSubmitted: "",
       flashExpiredLink: false,
       success: false,
-      error: "",
+      error: ""
     };
   },
   components: { VueRecaptcha },
@@ -79,7 +75,7 @@ export default {
     },
     disabled() {
       return !this.validation || this.form.captcha === "" || this.success;
-    },
+    }
   },
   methods: {
     onVerify(res) {
@@ -91,8 +87,8 @@ export default {
     onSubmit(evt) {
       evt.preventDefault();
       this.emailSubmitted = this.form.email;
-      axios.post("http://api-type-gg.herokuapp.com/register", this.form).then(
-        (res) => {
+      axios.post("https://api-type-gg.tk/register", this.form).then(
+        res => {
           console.log(res);
           if (res.data.success) {
             this.success = true;
@@ -100,11 +96,11 @@ export default {
             this.error = res.data.error;
           }
         },
-        (err) => {
+        err => {
           console.log(err);
         }
       );
-    },
+    }
   },
   created() {
     if (localStorage.getItem("flashExpiredLink")) {
@@ -114,10 +110,10 @@ export default {
   },
   mounted() {
     const confirmEmailInput = document.getElementById("no-paste");
-    confirmEmailInput.onpaste = (e) => {
+    confirmEmailInput.onpaste = e => {
       e.preventDefault();
     };
-  },
+  }
 };
 </script>
 

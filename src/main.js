@@ -49,9 +49,7 @@ const router = new VueRouter({
       component: Confirmation,
       beforeEnter: (to, from, next) => {
         axios
-          .get(
-            `http://api-type-gg.herokuapp.com/confirmation/${to.params.token}`
-          )
+          .get(`https://api-type-gg.tk/confirmation/${to.params.token}`)
           .then((response) => {
             if (!response.data.verified) {
               localStorage.setItem("flashExpiredLink", true);
@@ -93,9 +91,7 @@ const router = new VueRouter({
       component: ChangePassword,
       beforeEnter: (to, from, next) => {
         axios
-          .get(
-            `http://api-type-gg.herokuapp.com/forgot-password/${to.params.token}`
-          )
+          .get(`https://api-type-gg.tk/forgot-password/${to.params.token}`)
           .then((response) => {
             if (!response.data.verified) {
               localStorage.setItem("flashExpiredLink", true);

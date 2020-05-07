@@ -1,22 +1,17 @@
 <template>
   <div class="container">
-    <b-table
-      style="color: white"
-      :items="leaderboard"
-      :fields="fields"
-      responsibe="sm"
-    >
+    <b-table style="color: white" :items="leaderboard" :fields="fields" responsibe="sm">
       <template v-slot:cell(rank)="data">#{{ data.index + 1 }}</template>
 
       <template v-slot:cell(pp)="data">{{ Math.round(data.item.pp) }}</template>
 
-      <template v-slot:cell(wpmAvg)="data">{{
+      <template v-slot:cell(wpmAvg)="data">
+        {{
         Math.trunc(data.item.wpmAvg * 100) / 100
-      }}</template>
+        }}
+      </template>
 
-      <template v-slot:cell(accAvg)="data"
-        >{{ Math.trunc(data.item.accAvg * 100) / 100 }}%</template
-      >
+      <template v-slot:cell(accAvg)="data">{{ Math.trunc(data.item.accAvg * 100) / 100 }}%</template>
     </b-table>
   </div>
 </template>
@@ -32,32 +27,32 @@ export default {
         "Rank",
         {
           key: "username",
-          label: "Username",
+          label: "Username"
         },
         {
           key: "pp",
-          label: "Performance",
+          label: "Performance"
         },
         {
           key: "wpmAvg",
-          label: "WPM Average",
+          label: "WPM Average"
         },
         {
           key: "accAvg",
-          label: "Accuracy Average",
-        },
+          label: "Accuracy Average"
+        }
       ],
       maxWPM: 0,
-      leaderboard: [],
+      leaderboard: []
     };
   },
   created() {
-    axios.get("http://api-type-gg.herokuapp.com/rankings").then((res) => {
+    axios.get("https://api-type-gg.tk/rankings").then(res => {
       this.leaderboard = res.data;
       console.log(this.leaderboard);
     });
   },
-  mounted() {},
+  mounted() {}
 };
 </script>
 

@@ -9,29 +9,17 @@
     </div>
     <b-form @submit="onSubmit">
       <b-form-group label="username:">
-        <b-form-input
-          :state="userValidation"
-          v-model="form.username"
-          type="text"
-          required
-        ></b-form-input>
-        <b-form-invalid-feedback
-          >usernames may only contain A-Z, a-z, and 0-9 and must be between 4-12
-          characters.</b-form-invalid-feedback
-        >
+        <b-form-input :state="userValidation" v-model="form.username" type="text" required></b-form-input>
+        <b-form-invalid-feedback>
+          usernames may only contain A-Z, a-z, and 0-9 and must be between 4-12
+          characters.
+        </b-form-invalid-feedback>
       </b-form-group>
       <hr />
 
       <b-form-group label="password:">
-        <b-form-input
-          v-model="form.password"
-          :state="passValidation"
-          type="password"
-          required
-        ></b-form-input>
-        <b-form-invalid-feedback
-          >password must contain at least 8 characters</b-form-invalid-feedback
-        >
+        <b-form-input v-model="form.password" :state="passValidation" type="password" required></b-form-input>
+        <b-form-invalid-feedback>password must contain at least 8 characters</b-form-invalid-feedback>
       </b-form-group>
 
       <b-form-group label="confirm password:">
@@ -42,15 +30,11 @@
           type="password"
           required
         ></b-form-input>
-        <b-form-invalid-feedback
-          >passwords don't match.</b-form-invalid-feedback
-        >
+        <b-form-invalid-feedback>passwords don't match.</b-form-invalid-feedback>
       </b-form-group>
       <hr />
       <div style="text-align: center;">
-        <b-button :disabled="disabled" type="submit" variant="primary"
-          >complete sign up</b-button
-        >
+        <b-button :disabled="disabled" type="submit" variant="primary">complete sign up</b-button>
       </div>
     </b-form>
   </div>
@@ -67,9 +51,9 @@ export default {
         username: "",
         password: "",
         emailToken: "",
-        confirmPassword: "",
+        confirmPassword: ""
       },
-      error: "",
+      error: ""
     };
   },
   computed: {
@@ -102,36 +86,34 @@ export default {
         this.passValidation &&
         this.confirmValidation
       );
-    },
+    }
   },
   methods: {
     onSubmit(evt) {
       evt.preventDefault();
-      axios
-        .post("http://api-type-gg.herokuapp.com/confirmation", this.form)
-        .then(
-          (res) => {
-            if (res.status === 201) {
-              localStorage.setItem("flashSignedUpOnLogin", true);
-              this.$router.push("/login");
-            }
-          },
-          (err) => {
-            console.log(err);
-            // this.error = err.response.data.error;
+      axios.post("https://api-type-gg.tk/confirmation", this.form).then(
+        res => {
+          if (res.status === 201) {
+            localStorage.setItem("flashSignedUpOnLogin", true);
+            this.$router.push("/login");
           }
-        );
-    },
+        },
+        err => {
+          console.log(err);
+          // this.error = err.response.data.error;
+        }
+      );
+    }
   },
   created() {
     this.form.emailToken = this.$route.params.token;
   },
   mounted() {
     const confirmPasswordInput = document.getElementById("no-paste");
-    confirmPasswordInput.onpaste = (e) => {
+    confirmPasswordInput.onpaste = e => {
       e.preventDefault();
     };
-  },
+  }
 };
 </script>
 
