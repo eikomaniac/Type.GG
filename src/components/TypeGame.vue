@@ -177,11 +177,11 @@ export default {
                     }
                     if (sectionWords !== "") {
                       sections.push(sectionWords);
-                      overallWPMs.push(
+                      overallWPMs.push(Math.trunc(
                         sections.join("").length /
                           5 /
                           (this.replayData[replaySpaceIndex].time / 1000 / 60)
-                      );
+                      *100)/100);
                       if (sections.length === 1) {
                         sectionWPMs.push(
                           Math.trunc(
@@ -400,13 +400,13 @@ export default {
               showLine: false,
               pointRadius: 5,
               data: [
-                sections[0].length /
+                Math.trunc(sections[0].length /
                   5 /
                   ((this.replayData[firstSectionSpaceIndex].time -
                     this.replayData[0].time) /
                     1000 /
                     60)
-              ]
+                *100)/100]
             },
             {
               label: "Overall WPM",

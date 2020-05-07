@@ -33,12 +33,12 @@ router.get("/:textId", async (req, res) => {
 router.post("/", async (req, res) => {
   let errors = [];
 
-  // TODO: add real PP calculator
-  let calculatedPP = Math.floor(Math.random() * 101);
+  TODO: add real PP calculator
+  // let calculatedPP = Math.floor(Math.random() * 101);
 
   const newText = new Text({
     text: req.body.text,
-    pp: calculatedPP,
+    // pp: calculatedPP,
   });
 
   if (req.body.submittedBy) {
