@@ -725,7 +725,7 @@ export default {
                 this.pbCorrectChars = 0;
                 this.pbWrongChars = 0;
               }
-              this.increaseXP(res.data.text.length);
+              // this.increaseXP(res.data.text.length);
               this.reconstructReplay();
             },
             err => {
