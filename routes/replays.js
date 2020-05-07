@@ -9,6 +9,7 @@ const Replay = require("../models/Replay");
 // TODO: add pagination
 // Get all replays
 router.get("/", async (req, res) => {
+  console.log("test");
   try {
     let replays;
     if (!req.query.q) {
