@@ -59,7 +59,13 @@ app.use("/stats", require("./routes/stats"));
 mongoose.connect(
   process.env.DB_CONNECTION,
   { useNewUrlParser: true, useUnifiedTopology: true },
-  () => console.log("Connected to DB!")
+  function(err) {
+    if (err) {
+      console.err(err);
+    } else {
+      console.log("Connected to DB!");
+    }
+  }
 );
 
 app.listen(PORT, console.log(`Server started on port ${PORT}`));
