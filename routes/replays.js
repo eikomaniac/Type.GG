@@ -9,17 +9,16 @@ const Replay = require("../models/Replay");
 // TODO: add pagination
 // Get all replays
 router.get("/", async (req, res) => {
-  console.log("test");
   try {
-    let replays;
-    if (!req.query.q) {
-      replays = await Replay.find().select("-replayData");
-    } else {
-      replays = await Replay.find(
-        JSON.parse(req.query.q),
-        "_id username wpm accuracy date replayData"
-      ).sort("-wpm");
-    }
+    let replays = {};
+    // if (!req.query.q) {
+    //   replays = await Replay.find().select("-replayData");
+    // } else {
+    //   replays = await Replay.find(
+    //     JSON.parse(req.query.q),
+    //     "_id username wpm accuracy date replayData"
+    //   ).sort("-wpm");
+    // }
     res.status(200).json(replays);
   } catch (err) {
     console.log(err);
