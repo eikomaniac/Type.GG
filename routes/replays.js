@@ -164,7 +164,7 @@ router.post("/", async (req, res) => {
     .sort("-wpm")
     .catch((err) => console.log(err));
 
-  let isPB = false;
+  let isPB = true;
 
   if (errors.length > 0) {
     res.status(400).json({ errors });

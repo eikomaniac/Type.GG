@@ -972,6 +972,7 @@ export default {
           `https://api-type-gg.tk/replays/?q={"username":"${this.getUsername}","isPB":"true","textId":"${this.textId}"}`
         )
         .then(res => {
+          console.log(res);
           if (res.data[0]) {
             this.pb = res.data[0];
             this.pbCorrectChars = 0;
