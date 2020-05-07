@@ -56,10 +56,12 @@ app.use("/stats", require("./routes/stats"));
 // })
 
 // Connect to DB
-mongoose.connect(
-  process.env.DB_CONNECTION,
-  { useNewUrlParser: true, useUnifiedTopology: true },
-  () => console.log("Connected to DB!").catch((err) => console.log(err))
-);
+mongoose
+  .connect(process.env.DB_CONNECTION, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("Connected to DB!"))
+  .catch((err) => console.log(err));
 
 app.listen(PORT, console.log(`Server started on port ${PORT}`));
