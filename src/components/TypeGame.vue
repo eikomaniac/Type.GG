@@ -402,7 +402,7 @@ export default {
               showLine: false,
               pointRadius: 5,
               data: [
-                Math.trunc(sections[0].length /
+                Math.trunc((sections[0].length-1) /
                   5 /
                   ((this.replayData[firstSectionSpaceIndex].time -
                     this.replayData[0].time) /
@@ -965,7 +965,7 @@ export default {
     },
     adjustedWPM() {
       return (
-        ((this.correctWords.length + this.correctChars.length) /
+        ((this.correctWords.length + this.correctChars.length - 1) /
           5 /
           ((this.replayData[this.replayData.length-1].time - this.replayData[0].time) / 1000)) *
         60
