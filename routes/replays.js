@@ -242,6 +242,7 @@ router.post("/", async (req, res) => {
               ) -
                 1),
             wpm: userWPM,
+            acc: calculatedAccuracy,
           });
         }
       }
