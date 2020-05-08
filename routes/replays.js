@@ -167,10 +167,11 @@ router.post("/", async (req, res) => {
   if (error.length > 0) {
     res.status(400).json({ error });
   } else {
+    console.log(existingPB);
     if (existingPB) {
       isPB = calculatedWPM > existingPB.wpm;
       if (isPB) {
-        existingPB.isPB = false;
+        existingPB.set('isPB', false);
         existingPB.save();
         let textDoc = await Text.findById(req.body.textId);
         let pp =
@@ -182,7 +183,6 @@ router.post("/", async (req, res) => {
             1);
 
         if (calculatedWPM > textDoc.maxWPM) {
-          pp = 1000;
           textDoc.maxWPM = calculatedWPM;
           let i;
           for (i = 0; i < textDoc.leaderboard.length; i++) {
@@ -190,7 +190,7 @@ router.post("/", async (req, res) => {
             if (textDoc.leaderboard[i].username === username) {
               textDoc.leaderboard.set(i, {
                 username: username,
-                pp: pp,
+                pp: 1000,
                 wpm: calculatedWPM,
                 acc: calculatedAccuracy,
               });
@@ -238,7 +238,6 @@ router.post("/", async (req, res) => {
               ) -
                 1),
             wpm: userWPM,
-            acc: textDoc.leaderboard[i].acc,
           });
         }
       }
