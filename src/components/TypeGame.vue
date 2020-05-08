@@ -397,7 +397,7 @@ export default {
               data: sectionWPMs
             },
             {
-              label: "Adjusted",
+              label: "Adjusted 1st Segment",
               borderColor: "green",
               showLine: false,
               pointRadius: 5,
@@ -432,7 +432,7 @@ export default {
               borderColor: "rgb(255, 99, 132)"
             },
             {
-              label: "Adjusted",
+              label: "Adjusted 1st Segment",
               borderColor: "green"
             },
             {
@@ -700,6 +700,15 @@ export default {
         for (var i = 0; i < this.timeoutQueue.length; i++) {
           clearTimeout(this.timeoutQueue[i]);
         }
+        
+        if (!this.pb.wpm || this.wpm > this.pb.wpm) {
+          this.pb.replayData = this.replayData;
+          this.pb.wpm = this.wpm;
+          this.pbCorrectChars = 0;
+          this.pbWrongChars = 0;
+        }
+        // this.increaseXP(res.data.text.length);
+        this.reconstructReplay();
 
         this.wpm =
           ((this.correctWords.length + this.correctChars.length) /
@@ -722,21 +731,21 @@ export default {
           )
           .then(
             res => {
-              // console.log(res.status);
-              if (!this.pb.wpm || res.data.wpm > this.pb.wpm) {
-                this.pb = res.data;
-                this.pbCorrectChars = 0;
-                this.pbWrongChars = 0;
-              }
-              // this.increaseXP(res.data.text.length);
-              this.reconstructReplay();
+              console.log(res.status);
+              // if (!this.pb.wpm || res.data.wpm > this.pb.wpm) {
+              //   this.pb = res.data;
+              //   this.pbCorrectChars = 0;
+              //   this.pbWrongChars = 0;
+              // }
+              // // this.increaseXP(res.data.text.length);
+              // this.reconstructReplay();
             },
             err => {
               if (err.response.status === 401) {
                 localStorage.clear();
               }
               console.log(err.response);
-              this.errors = err.response.data.errors;
+              this.error = err.response.data.error;
             }
           );
       }
@@ -915,7 +924,7 @@ export default {
               }
             }
           }
-          if (this.text.search(this.pb.userInput) !== -1) {
+          if (this.text.substring(0, this.pb.userInput.length) === this.pb.userInput) {
             this.pbCorrectChars = this.pb.userInput.length;
             this.pbWrongChars = 0;
           } else if (char.length === 1) {
@@ -972,7 +981,6 @@ export default {
           `https://api-type-gg.tk/replays/?q={"username":"${this.getUsername}","isPB":"true","textId":"${this.textId}"}`
         )
         .then(res => {
-          console.log(res);
           if (res.data[0]) {
             this.pb = res.data[0];
             this.pbCorrectChars = 0;

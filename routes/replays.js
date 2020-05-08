@@ -66,7 +66,7 @@ router.post("/", async (req, res) => {
     }
   );
 
-  let errors = [];
+  let error = "";
 
   // Get correct text data
   let text = "";
@@ -74,7 +74,7 @@ router.post("/", async (req, res) => {
   try {
     let textObject = await Text.findById(req.body.textId);
     if (!textObject) {
-      errors.push("Invalid Text ID");
+      error = "Invalid Text ID";
     } else {
       text = textObject.text;
     }
@@ -127,7 +127,7 @@ router.post("/", async (req, res) => {
         } else if (char === "Unhighlight") {
           highlighted = false;
         } else {
-          errors.push("Corrupt keys in replay");
+          error = "Corrupt keys in replay";
         }
       }
     }
@@ -136,9 +136,9 @@ router.post("/", async (req, res) => {
         req.body.replayData[i].time <= req.body.replayData[i - 1].time) ||
       req.body.replayData[i].time < 0
     ) {
-      errors.push("Corrupt time in replay");
+      error = "Corrupt time in replay";
     }
-    if (errors.length > 0) {
+    if (error.length > 0) {
       break;
     }
     if (text.substring(0, userInput.length) === userInput) {
@@ -148,7 +148,7 @@ router.post("/", async (req, res) => {
   if (userInput !== text) {
     console.log(req.body.replayData);
     console.log(userInput);
-    errors.push(`Corrupt replay: ${userInput}`);
+    error = `Corrupt replay: ${userInput}`;
   }
   let calculatedWPM =
     text.length /
@@ -166,8 +166,8 @@ router.post("/", async (req, res) => {
 
   let isPB = true;
 
-  if (errors.length > 0) {
-    res.status(400).json({ errors });
+  if (error.length > 0) {
+    res.status(400).json({ error });
   } else {
     if (existingPB) {
       isPB = calculatedWPM > existingPB.wpm;
