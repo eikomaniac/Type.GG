@@ -534,7 +534,7 @@ export default {
       ) {
         return;
       }
-      if (e.key.length === 1 && !e.ctrlKey) {
+      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
         // If the user typed a char
         if (
           this.charsAfter.length > 25 &&
@@ -587,7 +587,7 @@ export default {
       } else {
         if (e.keyCode == 8) {
           // If backspace
-          if (e.ctrlKey) {
+          if (e.ctrlKey || e.metaKey) {
             if (
               this.correctChars.length + this.wrongCharsInWord.length !== 0 ||
               this.highlightedCorrect.length +
@@ -641,13 +641,13 @@ export default {
           // If shift + home/up
           if (e.keyCode === 36 || e.keyCode === 38) {
             this.highlight();
-          } else if (e.ctrlKey) {
+          } else if (e.ctrlKey || e.metaKey) {
             // If ctrl + shift + left
             if (e.keyCode === 37) {
               this.highlight();
             }
           }
-        } else if (e.ctrlKey && e.keyCode === 65) {
+        } else if ((e.ctrlKey || e.metaKey) && e.keyCode === 65) {
           // If ctrl + a
           this.highlight();
         }
