@@ -704,6 +704,8 @@ export default {
         if (!this.pb.wpm || this.wpm > this.pb.wpm) {
           this.pb.replayData = this.replayData;
           this.pb.wpm = this.wpm;
+          this.pb.accuracy = this.accuracy;
+          this.pb.date = new Date();
           this.pbCorrectChars = 0;
           this.pbWrongChars = 0;
         }

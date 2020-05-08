@@ -133,7 +133,7 @@ router.post("/", async (req, res) => {
     }
     if (
       (i > 0 &&
-        req.body.replayData[i].time <= req.body.replayData[i - 1].time) ||
+        req.body.replayData[i].time < req.body.replayData[i - 1].time) ||
       req.body.replayData[i].time < 0
     ) {
       error = "Corrupt time in replay";
@@ -146,8 +146,6 @@ router.post("/", async (req, res) => {
     }
   }
   if (userInput !== text) {
-    console.log(req.body.replayData);
-    console.log(userInput);
     error = `Corrupt replay: ${userInput}`;
   }
   let calculatedWPM =
