@@ -154,6 +154,10 @@ router.post("/", async (req, res) => {
     (req.body.replayData[req.body.replayData.length - 1].time / 1000 / 60);
   let calculatedAccuracy =
     (correctCharsTyped / (correctCharsTyped + totalErrors)) * 100;
+  
+  if (calculatedWPM > 450) {
+    error = "Cheated score";
+  }
 
   let existingPB = await Replay.findOne(
     { textId: req.body.textId, username: username, isPB: true },
