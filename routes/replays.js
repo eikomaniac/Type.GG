@@ -208,7 +208,7 @@ router.post("/", async (req, res) => {
                   ) -
                     1),
                 wpm: userWPM,
-                acc: textDoc.leaderboard[i].acc,
+                acc: parseFloat(textDoc.leaderboard[i].acc),
               });
             }
           }
