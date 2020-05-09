@@ -7,11 +7,11 @@
 
       <template v-slot:cell(wpmAvg)="data">
         {{
-        Math.trunc(data.item.wpmAvg * 100) / 100
+        trunc2dp(data.item.wpmAvg)
         }}
       </template>
 
-      <template v-slot:cell(accAvg)="data">{{ Math.trunc(data.item.accAvg * 100) / 100 }}%</template>
+      <template v-slot:cell(accAvg)="data">{{ trunc2dp(data.item.accAvg) }}%</template>
     </b-table>
   </div>
 </template>
@@ -21,6 +21,11 @@ import axios from "axios";
 
 export default {
   props: ["textId"],
+  methods: {
+    trunc2dp(val) {
+      return (Math.trunc(val*100)/100).toFixed(2);
+    },
+  },
   data() {
     return {
       fields: [

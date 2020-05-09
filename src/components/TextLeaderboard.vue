@@ -9,15 +9,15 @@
       <template v-slot:cell(rank)="data">#{{ data.index + 1 }}</template>
 
       <template v-slot:cell(wpm)="data">{{
-        Math.trunc(data.item.wpm * 100) / 100
+        trunc2dp(data.item.wpm)
       }}</template>
 
       <template v-slot:cell(accuracy)="data"
-        >{{ Math.trunc(data.item.accuracy * 100) / 100 }}%</template
+        >{{ trunc2dp(data.item.accuracy) }}%</template
       >
 
       <template v-slot:cell(performance)="data">{{
-        Math.trunc(data.item.performance)
+        Math.round(data.item.performance)
       }}</template>
     </b-table>
   </div>
@@ -52,6 +52,11 @@ export default {
       maxWPM: 0,
       leaderboard: [],
     };
+  },
+  methods: {
+    trunc2dp(val) {
+      return (Math.trunc(val*100)/100).toFixed(2);
+    },
   },
   created() {
     axios

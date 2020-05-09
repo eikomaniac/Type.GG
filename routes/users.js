@@ -22,11 +22,10 @@ const Replay = require("../models/Replay");
 // Get specific user's stats
 router.get("/:username", async (req, res) => {
   try {
-    const user = await User.findById(req.params.username);
     const replays = await Replay.find({ username: req.params.username }).select(
       "-replayData"
     );
-    if (!user) {
+    if (!replays) {
       res.status(404).json({ message: "Not Found" });
     } else {
       res.status(200).json(replays);

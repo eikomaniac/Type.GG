@@ -45,12 +45,12 @@ router.get("/:id", async (req, res) => {
 // TODO: add authentication & validation
 // Create new replay
 router.post("/", async (req, res) => {
-  let user = await User.findById(req.body.username);
-  if (!user) {
-    res.status(401).json({
-      message: "Unauthorised",
-    });
-  }
+  // let user = await User.findById(req.body.username);
+  // if (!user) {
+  //   res.status(401).json({
+  //     message: "Unauthorised",
+  //   });
+  // }
   let username = "";
   jwt.verify(
     req.headers.authorization.substring(7, req.headers.authorization.length),
@@ -155,7 +155,7 @@ router.post("/", async (req, res) => {
   let calculatedAccuracy =
     (correctCharsTyped / (correctCharsTyped + totalErrors)) * 100;
   
-  if (calculatedWPM > 450) {
+  if (calculatedWPM*10000 > 450*10000) {
     error = "Cheated score";
   }
 
@@ -172,7 +172,7 @@ router.post("/", async (req, res) => {
     res.status(400).json({ error });
   } else {
     if (existingPB) {
-      isPB = calculatedWPM > existingPB.wpm;
+      isPB = calculatedWPM*10000 > existingPB.wpm*10000;
       if (isPB) {
         existingPB.set('isPB', false);
         existingPB.save();
@@ -185,7 +185,7 @@ router.post("/", async (req, res) => {
           ) -
             1);
 
-        if (calculatedWPM > textDoc.maxWPM) {
+        if (calculatedWPM*10000 > textDoc.maxWPM*10000) {
           textDoc.maxWPM = calculatedWPM;
           let i;
           for (i = 0; i < textDoc.leaderboard.length; i++) {
@@ -236,7 +236,7 @@ router.post("/", async (req, res) => {
           (calculatedWPM * Math.log(11)) / textDoc.maxWPM
         ) -
           1);
-      if (calculatedWPM > textDoc.maxWPM) {
+      if (calculatedWPM*10000 > textDoc.maxWPM*10000) {
         // if new WR on quote
         pp = 1000;
         textDoc.maxWPM = calculatedWPM;

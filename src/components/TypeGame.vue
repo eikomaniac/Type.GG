@@ -1,10 +1,15 @@
 <template>
   <div>
-    <div class="text-box" id="text-box">
-      <link
-        href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap"
-        rel="stylesheet"
-      />
+    <div>
+      <h3 v-if="!quoteFinished" style="display: inline-block;">WPM: {{ countdown &lt;= -1 ? Math.trunc(wpm) : 0 }}</h3>
+      <h3 v-if="quoteFinished" style="display: inline-block;">WPM: {{ trunc2dp(wpm) }} |</h3> <h3 style="display: inline-block;" v-if="quoteFinished">Accuracy: {{ trunc2dp(accuracy) }}%</h3>
+      <div style="float:right; display: inline-block">
+        <span style="width: 50px; font-size: 1.25em; " v-if="countdown <= 0 && !quoteFinished">{{ time }}</span>
+        <span :class="dot1colour"/> <span :class="dot2colour"/> <span :class="dot3colour"/>
+      </div>
+      <hr style="margin-top:-5px;" />
+    </div>
+    <div class="text-box" :class="greyedOutText" id="text-box">
       <span class="correctWords" v-if="correctWords" v-text="correctWords" /><span class="highlightedCorrect" v-if="highlightedCorrect" v-text="highlightedCorrect" /><span
         class="highlightedWrongInWord"
         v-if="highlightedWrongInWord"
@@ -28,7 +33,7 @@
           correctWords.length + correctChars.length + highlightedCorrect.length
         "
         variant="success"
-      ></b-progress-bar>
+      ><span style="font-size: 1.5em; text-align: right; margin-right: 2px; margin-top: 7px;">{{ quoteFinished ? trunc2dp(wpm) : Math.trunc(wpm) }}</span></b-progress-bar>
       <b-progress-bar
         class="no-transition"
         :value="
@@ -41,12 +46,8 @@
         variant="danger"
       ></b-progress-bar>
     </b-progress>
-    <h3 style="margin-top:25px">WPM: {{ countdown == -1 ? Math.trunc(wpm) : 0 }}</h3>
-    <h4>Accuracy: {{ Math.trunc(accuracy * 100) / 100 }}%</h4>
-    <h5 v-if="countdown <= 0 && !quoteFinished">Time: {{ Math.trunc((new Date().getTime() - startingTime) / 1000) }}</h5>
-    <h4 v-if="countdown > -1">{{ countdown > 0 ? countdown : "Go!" }}</h4>
-    <b-progress striped :animated="true" :max="text.length">
-      <b-progress-bar class="no-transition" :value="pbCorrectChars" variant="primary"></b-progress-bar>
+    <b-progress striped :animated="true" :max="text.length" v-if="pb.replayData">
+      <b-progress-bar class="no-transition" :value="pbCorrectChars" variant="primary"><span style="font-size: 1.5em; text-align: right; margin-right: 2px; margin-top: 7px;">{{ quoteFinished ? trunc2dp(pbWPM) : Math.trunc(pbWPM) }}</span></b-progress-bar>
       <b-progress-bar
         class="no-transition"
         :value="
@@ -59,17 +60,17 @@
     </b-progress>
     <div v-if="capsLockOn" class="alert alert-warning">Warning: Caps-Lock on</div>
     <div v-if="quoteFinished">
-      Time: {{ Math.trunc(this.replayData[this.replayData.length - 1].time / 10) / 100}}<br>
-      Adjusted WPM: {{ Math.trunc(adjustedWPM*100)/100 }}<br>
+      Time: {{ Math.trunc(this.replayData[this.replayData.length - 1].time / 10) / 100}}s<br>
+      Adjusted WPM: {{ trunc2dp(adjustedWPM) }}<br>
       <b-button variant="danger" @click="refresh">Retry (F5)</b-button>
       <b-button variant="primary" :to="{ name: 'solo' }">Next</b-button>
     </div>
-    <line-chart style="padding-right: 5px" :height="150" :chart-data="datacollection"></line-chart>
+    <line-chart v-if="pb.replayData" style="padding-right: 5px" :height="150" :chart-data="datacollection"></line-chart>
     <div v-if="pb.replayData" class="pb-container">
       <h3>Personal Best</h3>
-      WPM: {{ Math.trunc(pb.wpm * 100) / 100 }}
+      WPM: {{ trunc2dp(pb.wpm) }}
       <br />
-      Accuracy: {{ Math.trunc(pb.accuracy * 100) / 100 }}%
+      Accuracy: {{ trunc2dp(pb.accuracy) }}%
       <br />Achieved
       <timeago :datetime="pb.date" :autoUpdate="true"></timeago>
     </div>
@@ -114,6 +115,7 @@ export default {
       replayTimeout: null,
       replayTimeoutActive: true,
       pb: {},
+      pbWPM: 0,
       pbCorrectChars: 0,
       pbWrongChars: 0,
       correctCharsTyped: 0,
@@ -122,6 +124,9 @@ export default {
   },
   methods: {
     ...mapActions(["increaseXP"]),
+    trunc2dp(val) {
+      return (Math.trunc(val*100)/100).toFixed(2);
+    },
     reconstructReplay() {
       let userInput = "";
       let errors = [];
@@ -179,35 +184,28 @@ export default {
                     }
                     if (sectionWords !== "") {
                       sections.push(sectionWords);
-                      overallWPMs.push(Math.trunc(
+                      overallWPMs.push(this.trunc2dp(
                         sections.join("").length /
                           5 /
-                          (this.replayData[replaySpaceIndex].time / 1000 / 60)
-                      *100)/100);
+                          (this.replayData[replaySpaceIndex].time / 1000 / 60)));
                       if (sections.length === 1) {
                         sectionWPMs.push(
-                          Math.trunc(
-                            (sections.join("").length /
+                          this.trunc2dp(
+                            sections.join("").length /
                               5 /
                               (this.replayData[replaySpaceIndex].time /
                                 1000 /
-                                60)) *
-                              100
-                          ) / 100
-                        );
+                                60)));
                       } else {
                         sectionWPMs.push(
-                          Math.trunc(
-                            (sections[sections.length - 1].length /
+                          this.trunc2dp(
+                            sections[sections.length - 1].length /
                               5 /
                               ((this.replayData[replaySpaceIndex].time -
                                 this.replayData[previousSectionSpaceIndex]
                                   .time) /
                                 1000 /
-                                60)) *
-                              100
-                          ) / 100
-                        );
+                                60)));
                       }
                     }
                     sectionWords = word;
@@ -251,24 +249,18 @@ export default {
           sectionWords + this.text.substring(lastSpaceIndex, userInput.length)
         );
         sectionWPMs.push(
-          Math.trunc(
-            (sections[sections.length - 1].length /
+          this.trunc2dp(
+            sections[sections.length - 1].length /
               5 /
               ((this.replayData[this.replayData.length - 1].time -
                 this.replayData[previousSectionSpaceIndex].time) /
                 1000 /
-                60)) *
-              100
-          ) / 100
-        );
+                60)));
         overallWPMs.push(
-          Math.trunc(
-            (this.text.length /
+          this.trunc2dp(
+            this.text.length /
               5 /
-              (this.replayData[this.replayData.length - 1].time / 1000 / 60)) *
-              100
-          ) / 100
-        );
+              (this.replayData[this.replayData.length - 1].time / 1000 / 60)));
       }
 
       userInput = "";
@@ -323,15 +315,12 @@ export default {
                   if (sectionWords !== "") {
                     sections.push(sectionWords);
                     PBoverallWPMs.push(
-                      Math.trunc(
-                        (sections.join("").length /
+                      this.trunc2dp(
+                        sections.join("").length /
                           5 /
                           (this.pb.replayData[replaySpaceIndex].time /
                             1000 /
-                            60)) *
-                          100
-                      ) / 100
-                    );
+                            60)));
                   }
                   sectionWords = word;
                   previousSectionSpaceIndex = replaySpaceIndex;
@@ -372,14 +361,12 @@ export default {
         }
       }
       PBoverallWPMs.push(
-        Math.trunc(
-          (this.text.length /
+        this.trunc2dp(
+          this.text.length /
             5 /
             (this.pb.replayData[this.pb.replayData.length - 1].time /
               1000 /
-              60)) *
-            100
-        ) / 100
+              60))
       );
       sections.push(
         sectionWords + this.text.substring(lastSpaceIndex, userInput.length)
@@ -402,13 +389,12 @@ export default {
               showLine: false,
               pointRadius: 5,
               data: [
-                Math.trunc((sections[0].length-1) /
+                this.trunc2dp((sections[0].length-1) /
                   5 /
                   ((this.replayData[firstSectionSpaceIndex].time -
                     this.replayData[0].time) /
                     1000 /
-                    60)
-                *100)/100]
+                    60))]
             },
             {
               label: "Overall WPM",
@@ -476,13 +462,11 @@ export default {
         }
       }, 100);
       this.countdownInterval = setInterval(() => {
+        this.countdown -= 1;
         if (this.countdown > -1) {
-          this.countdown -= 1;
           if (this.countdown === 0 && this.pb.replayData) {
             this.playReplay();
           }
-        } else {
-          clearInterval(this.countdownInterval);
         }
       }, 1000);
       this.remainingText = this.text;
@@ -505,6 +489,7 @@ export default {
       this.quoteFinished = false;
       this.pbCorrectChars = 0;
       this.pbWrongChars = 0;
+      this.pbWPM = 0;
       this.correctCharsTyped = 0;
     },
     keyDownHandler: function(e) {
@@ -721,7 +706,6 @@ export default {
           .post(
             `https://api-type-gg.tk/replays`,
             {
-              username: this.getUsername,
               textId: this.textId,
               replayData: this.replayData
             },
@@ -932,6 +916,7 @@ export default {
           } else if (char.length === 1) {
             this.pbWrongChars += 1;
           }
+          this.pbWPM = (this.pbCorrectChars / 5 / (this.pb.replayData[i].time / 1000 / 60))
         }, this.pb.replayData[i].time)
       );
     },
@@ -958,6 +943,21 @@ export default {
     areIncompleteChars() {
       return this.incompleteChars.length > 0;
     },
+    time() {
+      let minutes = Math.floor(-this.countdown / 60);
+      let seconds = (-this.countdown) % 60;
+      let digit0 = "";
+      if (seconds <= 9) {
+        digit0 = "0"
+      }
+      return minutes + ":" + digit0 + seconds;
+    },
+    greyedOutText() {
+      if (this.countdown > 0) {
+        return "greyed-out-text"
+      }
+      return null;
+    },
     currentChar() {
       return this.incompleteChars.length > 0
         ? this.incompleteChars[0]
@@ -970,6 +970,30 @@ export default {
           ((this.replayData[this.replayData.length-1].time - this.replayData[0].time) / 1000)) *
         60
       );
+    },
+    dot1colour() {
+      if (this.countdown > 0) {
+        return "dot red";
+      } else if (this.countdown <= -1) {
+        return "dot grey";
+      }
+      return "dot green";
+    },
+    dot2colour() {
+      if (this.countdown > 2 || this.countdown <= -1) {
+        return "dot grey";
+      } else if (this.countdown === 0) {
+        return "dot green";
+      }
+      return "dot red";
+    },
+    dot3colour() {
+      if (this.countdown > 1 || this.countdown <= -1) {
+        return "dot grey";
+      } else if (this.countdown <= 0) {
+        return "dot green";
+      }
+      return "dot red";
     }
   },
   created: function() {
@@ -1014,13 +1038,11 @@ export default {
       }
     }, 100);
     this.countdownInterval = setInterval(() => {
+      self.countdown -= 1;
       if (self.countdown > -1) {
-        self.countdown -= 1;
         if (self.countdown === 0 && this.pb.replayData) {
           this.playReplay();
         }
-      } else {
-        clearInterval(self.countdownInterval);
       }
     }, 1000);
     window.addEventListener("keydown", self.keyDownHandler);
@@ -1032,6 +1054,34 @@ export default {
 </script>
 
 <style scoped>
+hr {
+  border: 1px solid #363636;
+  margin-top: 10px;
+}
+
+.dot {
+  height: 25px;
+  width: 25px;
+  display: inline-block;
+  border-radius: 50%;
+}
+
+.red {
+  background-color: #cc0000;
+}
+
+.grey {
+  background-color: #bbb;
+}
+
+.green {
+  background-color: lime;
+}
+
+.greyed-out-text {
+  color: silver;
+}
+
 .text-box {
   line-height: 1.2;
   /* height: 3em; */
