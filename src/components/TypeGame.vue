@@ -707,7 +707,8 @@ export default {
             `https://api-type-gg.tk/replays`,
             {
               textId: this.textId,
-              replayData: this.replayData
+              replayData: this.replayData,
+              username: this.getUsername
             },
             {
               headers: {

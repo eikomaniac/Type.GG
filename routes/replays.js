@@ -45,12 +45,12 @@ router.get("/:id", async (req, res) => {
 // TODO: add authentication & validation
 // Create new replay
 router.post("/", async (req, res) => {
-  // let user = await User.findById(req.body.username);
-  // if (!user) {
-  //   res.status(401).json({
-  //     message: "Unauthorised",
-  //   });
-  // }
+  let user = await User.findById(req.body.username);
+  if (!user) {
+    res.status(401).json({
+      message: "Unauthorised",
+    });
+  }
   let username = "";
   jwt.verify(
     req.headers.authorization.substring(7, req.headers.authorization.length),
