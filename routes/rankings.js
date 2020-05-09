@@ -34,10 +34,11 @@ router.get("/", async (req, res) => {
           accuracyScores[texts[i].leaderboard[j].username] = [];
         }
         accuracyScores[texts[i].leaderboard[j].username].push(
-          texts[i].leaderboard[j].acc
+          parseFloat(texts[i].leaderboard[j].acc) // ! why?
         );
       }
     }
+    console.log(accuracyScores);
     let rankings = [];
     let r = 0.95; // can remove after 200 texts in db
     if (texts.lengths > 200) {
