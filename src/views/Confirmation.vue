@@ -100,7 +100,7 @@ export default {
         },
         err => {
           console.log(err);
-          // this.error = err.response.data.error;
+          this.error = err.response.data.error;
         }
       );
     }
