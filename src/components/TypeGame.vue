@@ -493,6 +493,7 @@ export default {
       this.correctCharsTyped = 0;
     },
     keyDownHandler: function(e) {
+      console.log(e.key);
       if (
         e.keyCode === 8 || // backspace
         e.keyCode === 222 || // '
