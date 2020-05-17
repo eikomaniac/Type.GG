@@ -64,8 +64,8 @@ export default {
   created() {
     axios
       .get(
-        // `https://api-type-gg.tk/replays/?q={"textId":"${this.textId}","isPB":"true"}`
-        `http://localhost:5000/rankings/${this.textId}`
+        `https://api-type-gg.tk/rankings/${this.textId}`
+        // `http://localhost:5000/rankings/${this.textId}`
       )
       .then((res) => {
         this.leaderboard = res.data;

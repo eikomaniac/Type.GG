@@ -546,7 +546,8 @@ export default {
             (this.replayData[this.replayData.length - 1].time / 1000)) *
           60;
         axios.post(
-          `http://localhost:5000/replays`,
+          `https://api-type-gg.tk/replays`,
+          // `http://localhost:5000/replays`,
           {
             textId: this.textId,
             replayData: this.replayData,

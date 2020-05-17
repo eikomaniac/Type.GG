@@ -52,8 +52,8 @@ export default {
     };
   },
   created() {
-    // axios.get("https://api-type-gg.tk/rankings").then(res => {
-    axios.get("http://localhost:5000/rankings").then(res => {
+    axios.get("https://api-type-gg.tk/rankings").then(res => {
+    // axios.get("http://localhost:5000/rankings").then(res => {
       this.leaderboard = res.data;
       console.log(this.leaderboard);
     });
