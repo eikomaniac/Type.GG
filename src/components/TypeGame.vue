@@ -537,7 +537,7 @@ export default {
           this.pbCorrectChars = 0;
           this.pbWrongChars = 0;
         }
-        this.increaseXP(this.text.length);
+        // this.increaseXP(this.text.length);
         this.reconstructReplay();
 
         this.wpm =
