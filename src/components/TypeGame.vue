@@ -119,7 +119,10 @@ export default {
       pbCorrectChars: 0,
       pbWrongChars: 0,
       correctCharsTyped: 0,
-      timeoutQueue: []
+      timeoutQueue: [],
+      wordTyped: true,
+      replayTextArray: [],
+      replayInput: 0
     };
   },
   methods: {
@@ -128,311 +131,147 @@ export default {
       return (Math.trunc(val*100)/100).toFixed(2);
     },
     reconstructReplay() {
-      let userInput = "";
-      let errors = [];
-      let lastSpaceIndex = 0;
+      let textArray = this.text.split(" ").map(x => x + " ");
+      textArray[textArray.length-1] = textArray[textArray.length-1].substring(0, textArray[textArray.length-1].length-1);
+      
+      let segments = [];
+      let segment = "";
+      for (var i = 0; i < textArray.length; i++) {
+        segment += textArray[i];
+        if (segment.length > this.text.length / 25) {
+          segments.push(segment);
+          segment = "";
+        }
+      }
+
+      let totalErrors = 0;
+      let correctCharsTyped = 0;
       let errorCorrected = true;
-      // let totalErrors = 0;
-      let highlighted = false;
-      // let correctCharsTyped = 0;
-      let sectionWPMs = [];
-      let sections = [];
-      let sectionWords = "";
-      let overallWPMs = [];
-      let replaySpaceIndex = 0;
-      let previousSectionSpaceIndex = 0;
-      let firstSectionSpaceIndex = 0;
-
-      // let wordWPMs = 0;
-      // let words = 0;
-
-      let minNoOfSections = 25;
-      let charsPerSection = Math.ceil(this.text.length / minNoOfSections);
-      // console.log(charsPerSection);
-      if (this.replayData.length !== 0) {
-        for (var i = 0; i < this.replayData.length; i++) {
-          let char = this.replayData[i].key;
-          if (highlighted) {
-            if (char.length === 1) {
-              userInput = userInput.substring(0, lastSpaceIndex);
-              userInput += char;
-              highlighted = false;
-            } else if (char === "Backspace") {
-              userInput = userInput.substring(0, lastSpaceIndex);
-              highlighted = false;
-            } else if (char === "Unhighlight") {
-              highlighted = false;
-            }
-          } else {
-            if (char.length === 1) {
-              userInput += char;
-
-              // If input is correct
-              if (this.text.substring(0, userInput.length) === userInput) {
-                // correctCharsTyped += 1;
-                if (char === " ") {
-                  let word = this.text.substring(
-                    lastSpaceIndex,
-                    userInput.length
-                  );
-                  // console.log(word);
-                  if (sectionWords.length + word.length <= charsPerSection) {
-                    sectionWords += word;
-                  } else {
-                    if (firstSectionSpaceIndex === 0) {
-                      firstSectionSpaceIndex = replaySpaceIndex;
-                    }
-                    if (sectionWords !== "") {
-                      sections.push(sectionWords);
-                      overallWPMs.push(this.trunc2dp(
-                        sections.join("").length /
-                          5 /
-                          (this.replayData[replaySpaceIndex].time / 1000 / 60)));
-                      if (sections.length === 1) {
-                        sectionWPMs.push(
-                          this.trunc2dp(
-                            sections.join("").length /
-                              5 /
-                              (this.replayData[replaySpaceIndex].time /
-                                1000 /
-                                60)));
-                      } else {
-                        sectionWPMs.push(
-                          this.trunc2dp(
-                            sections[sections.length - 1].length /
-                              5 /
-                              ((this.replayData[replaySpaceIndex].time -
-                                this.replayData[previousSectionSpaceIndex]
-                                  .time) /
-                                1000 /
-                                60)));
-                      }
-                    }
-                    sectionWords = word;
-                    previousSectionSpaceIndex = replaySpaceIndex;
-                  }
-                  lastSpaceIndex = userInput.length;
-                  replaySpaceIndex = i;
-                }
-              } else if (errorCorrected) {
-                // totalErrors += 1;
-                errorCorrected = false;
-              }
-            } else {
-              if (char === "CtrlBackspace") {
-                userInput = userInput.substring(0, lastSpaceIndex);
-              } else if (char === "Backspace") {
-                userInput = userInput.substring(0, userInput.length - 1);
-              } else if (char === "Highlight") {
-                highlighted = true;
-              } else if (char === "Unhighlight") {
-                highlighted = false;
-              } else {
-                errors.push("Corrupt keys in replay");
-              }
-            }
-          }
-          if (
-            (i > 0 && this.replayData[i].time <= this.replayData[i - 1].time) ||
-            this.replayData[i].time < 0
-          ) {
-            errors.push("Corrupt time in replay");
-          }
-          if (errors.length > 0) {
-            break;
-          }
-          if (this.text.substring(0, userInput.length) === userInput) {
-            errorCorrected = true;
-          }
-        }
-        sections.push(
-          sectionWords + this.text.substring(lastSpaceIndex, userInput.length)
-        );
-        sectionWPMs.push(
-          this.trunc2dp(
-            sections[sections.length - 1].length /
-              5 /
-              ((this.replayData[this.replayData.length - 1].time -
-                this.replayData[previousSectionSpaceIndex].time) /
-                1000 /
-                60)));
-        overallWPMs.push(
-          this.trunc2dp(
-            this.text.length /
-              5 /
-              (this.replayData[this.replayData.length - 1].time / 1000 / 60)));
-      }
-
-      userInput = "";
-      errors = [];
-      lastSpaceIndex = 0;
-      errorCorrected = true;
-      // let totalErrors = 0;
-      highlighted = false;
-      // let correctCharsTyped = 0;
-      sections = [];
-      sectionWords = "";
+      let wordTyped = true;
+      let segmentInput = "";
+      let segmentIndex = 0;
+      let PBsegmentWPMs = [];
+      let lastSegmentTime = 0;
       let PBoverallWPMs = [];
-      replaySpaceIndex = 0;
-      previousSectionSpaceIndex = 0;
-      firstSectionSpaceIndex = 0;
 
-      // let wordWPMs = 0;
-      // let words = 0;
-      // console.log(charsPerSection);
       for (i = 0; i < this.pb.replayData.length; i++) {
-        let char = this.pb.replayData[i].key;
-        if (highlighted) {
-          if (char.length === 1) {
-            userInput = userInput.substring(0, lastSpaceIndex);
-            userInput += char;
-            highlighted = false;
-          } else if (char === "Backspace") {
-            userInput = userInput.substring(0, lastSpaceIndex);
-            highlighted = false;
-          } else if (char === "Unhighlight") {
-            highlighted = false;
-          }
-        } else {
-          if (char.length === 1) {
-            userInput += char;
+        let input = this.pb.replayData[i].input;
 
-            // If input is correct
-            if (this.text.substring(0, userInput.length) === userInput) {
-              // correctCharsTyped += 1;
-              if (char === " ") {
-                let word = this.text.substring(
-                  lastSpaceIndex,
-                  userInput.length
-                );
-                // console.log(word);
-                if (sectionWords.length + word.length <= charsPerSection) {
-                  sectionWords += word;
-                } else {
-                  if (firstSectionSpaceIndex === 0) {
-                    firstSectionSpaceIndex = replaySpaceIndex;
-                  }
-                  if (sectionWords !== "") {
-                    sections.push(sectionWords);
-                    PBoverallWPMs.push(
-                      this.trunc2dp(
-                        sections.join("").length /
-                          5 /
-                          (this.pb.replayData[replaySpaceIndex].time /
-                            1000 /
-                            60)));
-                  }
-                  sectionWords = word;
-                  previousSectionSpaceIndex = replaySpaceIndex;
-                }
-                lastSpaceIndex = userInput.length;
-                replaySpaceIndex = i;
-              }
-            } else if (errorCorrected) {
-              // totalErrors += 1;
-              errorCorrected = false;
+        if (input === textArray[0]) {
+          segmentInput += input;
+          textArray.shift();
+          correctCharsTyped += 1;
+          wordTyped = true;
+          if (segmentInput === segments[segmentIndex]) {
+            PBoverallWPMs.push(this.trunc2dp(segments.slice(0,segmentIndex+1).join("").length / 5 / (this.pb.replayData[i].time / 60 / 1000)));
+            PBsegmentWPMs.push(this.trunc2dp(segmentInput.length / 5 / ((this.pb.replayData[i].time - lastSegmentTime) / 60 / 1000)));
+            segmentIndex += 1;
+            segmentInput = "";
+            lastSegmentTime = this.pb.replayData[i].time;
+          } 
+        } else if (input === textArray[0].substring(0, input.length)) {
+            if (wordTyped || (i > 0 && input.length > this.pb.replayData[i-1].input.length)) {
+              correctCharsTyped += 1;
+              wordTyped = false;
+              errorCorrected = true;
             }
-          } else {
-            if (char === "CtrlBackspace") {
-              userInput = userInput.substring(0, lastSpaceIndex);
-            } else if (char === "Backspace") {
-              userInput = userInput.substring(0, userInput.length - 1);
-            } else if (char === "Highlight") {
-              highlighted = true;
-            } else if (char === "Unhighlight") {
-              highlighted = false;
-            } else {
-              errors.push("Corrupt keys in replay");
-            }
-          }
-        }
-        if (
-          (i > 0 &&
-            this.pb.replayData[i].time <= this.pb.replayData[i - 1].time) ||
-          this.pb.replayData[i].time < 0
-        ) {
-          errors.push("Corrupt time in replay");
-        }
-        if (errors.length > 0) {
-          break;
-        }
-        if (this.text.substring(0, userInput.length) === userInput) {
-          errorCorrected = true;
+        } else if (errorCorrected) {
+          totalErrors += 1;
+          errorCorrected = false;
         }
       }
-      PBoverallWPMs.push(
-        this.trunc2dp(
-          this.text.length /
-            5 /
-            (this.pb.replayData[this.pb.replayData.length - 1].time /
-              1000 /
-              60))
-      );
-      sections.push(
-        sectionWords + this.text.substring(lastSpaceIndex, userInput.length)
-      );
 
-      if (this.replayData.length !== 0) {
-        this.datacollection = {
-          labels: sections,
-          datasets: [
-            {
-              label: "WPM",
-              borderColor: "rgb(255, 99, 132)",
-              showLine: false,
-              pointRadius: 5,
-              data: sectionWPMs
-            },
-            {
-              label: "Adjusted 1st Segment",
-              borderColor: "green",
-              showLine: false,
-              pointRadius: 5,
-              data: [
-                this.trunc2dp((sections[0].length-1) /
-                  5 /
-                  ((this.replayData[firstSectionSpaceIndex].time -
-                    this.replayData[0].time) /
-                    1000 /
-                    60))]
-            },
-            {
-              label: "Overall WPM",
-              borderColor: "cyan",
-              data: overallWPMs
-            },
-            {
-              label: "PB Overall WPM",
-              borderColor: "grey",
-              data: PBoverallWPMs,
-              fill: false
-            }
-          ]
-        };
-      } else {
-        this.datacollection = {
-          labels: sections,
-          datasets: [
-            {
-              label: "WPM",
-              borderColor: "rgb(255, 99, 132)"
-            },
-            {
-              label: "Adjusted 1st Segment",
-              borderColor: "green"
-            },
-            {
-              label: "Overall WPM",
-              borderColor: "cyan"
-            },
-            {
-              label: "PB Overall WPM",
-              borderColor: "grey",
-              data: PBoverallWPMs,
-              fill: false
-            }
-          ]
-        };
+      let segmentWPMs = [null];
+      let overallWPMs = [null];
+      let adjustedFirstSegment = [null];
+
+      if (this.replayData[0]) {
+        textArray = this.text.split(" ").map(x => x + " ");
+        textArray[textArray.length-1] = textArray[textArray.length-1].substring(0, textArray[textArray.length-1].length-1);
+        
+        segmentWPMs = [];
+        overallWPMs = [];
+        
+        totalErrors = 0;
+        correctCharsTyped = 0;
+        errorCorrected = true;
+        wordTyped = true;
+        segmentInput = "";
+        segmentIndex = 0;
+        lastSegmentTime = 0;
+  
+        for (i = 0; i < this.replayData.length; i++) {
+          let input = this.replayData[i].input;
+  
+          if (input === textArray[0]) {
+            segmentInput += input;
+            textArray.shift();
+            correctCharsTyped += 1;
+            wordTyped = true;
+            if (segmentInput === segments[segmentIndex]) {
+              overallWPMs.push(this.trunc2dp(segments.slice(0,segmentIndex+1).join("").length / 5 / (this.replayData[i].time / 60 / 1000)));
+              segmentWPMs.push(this.trunc2dp(segments[segmentIndex].length / 5 / ((this.replayData[i].time - lastSegmentTime) / 60 / 1000)));
+              segmentIndex += 1;
+              segmentInput = "";
+              lastSegmentTime = this.replayData[i].time;
+              if (segmentIndex === 1) {
+                adjustedFirstSegment = [this.trunc2dp(
+                  segments[0].length / 5 / ((this.replayData[i].time - this.replayData[0].time) / 60 / 1000)
+                )];
+              }
+            } 
+          } else if (input === textArray[0].substring(0, input.length)) {
+              if (wordTyped || (i > 0 && input.length > this.replayData[i-1].input.length)) {
+                correctCharsTyped += 1;
+                wordTyped = false;
+                errorCorrected = true;
+              }
+          } else if (errorCorrected) {
+            totalErrors += 1;
+            errorCorrected = false;
+          }
+        }
+      }
+
+      console.log(totalErrors);
+      console.log(correctCharsTyped);
+      this.datacollection = {
+        labels: segments,
+        datasets: [
+          {
+            label: "Segment WPM",
+            borderColor: "rgb(255, 99, 132)",
+            showLine: false,
+            pointRadius: 5,
+            data: segmentWPMs
+          },
+          {
+            label: "Overall WPM",
+            borderColor: "cyan",
+            data: overallWPMs
+          },
+          {
+            label: "Adjusted 1st Segment",
+            borderColor: "green",
+            showLine: false,
+            pointRadius: 5,
+            data: adjustedFirstSegment
+          },
+          {
+            label: "PB Segment WPM",
+            borderColor: "grey",
+            showLine: false,
+            hidden: true,
+            pointRadius: 4,
+            data: PBsegmentWPMs
+          },
+          {
+            label: "Overall PB WPM",
+            borderColor: "grey",
+            data: PBoverallWPMs,
+            fill: false
+          },
+        ]
       }
     },
     refresh: function() {
@@ -491,9 +330,11 @@ export default {
       this.pbWrongChars = 0;
       this.pbWPM = 0;
       this.correctCharsTyped = 0;
+      this.replayTextArray = this.text.split(" ").map(x => x + " ");
+      this.replayTextArray[this.replayTextArray.length-1] = this.replayTextArray[this.replayTextArray.length-1].substring(0, this.replayTextArray[this.replayTextArray.length-1].length-1);
+      this.replayInput = 0;
     },
     keyDownHandler: function(e) {
-      console.log(e.key);
       if (
         e.keyCode === 8 || // backspace
         e.keyCode === 222 || // '
@@ -531,10 +372,6 @@ export default {
         ) {
           return;
         }
-        this.replayData.push({
-          key: e.key,
-          time: new Date().getTime() - this.startingTime
-        });
         this.caretStart = new Date().getTime();
         if (
           this.highlightedCorrect.length +
@@ -543,10 +380,11 @@ export default {
           0
         ) {
           this.backspace();
+          this.replayData.push({ input: "", time: new Date().getTime() - this.startingTime });
         }
         if (this.wrongCharsInWord.length > 0) {
           // If already incorrect
-          this.typeWrongChar();
+          this.typeWrongChar(e.key);
         } else if (e.key == this.incompleteChars[0]) {
           // If correct
           this.typeCorrectChar();
@@ -564,7 +402,7 @@ export default {
           if (this.wrongCharsAfter.length == 0) {
             this.totalErrors += 1;
           }
-          this.typeWrongChar();
+          this.typeWrongChar(e.key);
         }
         if (this.correctWords.length != this.text.length) {
           this.wpm = this.calculateWPM();
@@ -575,16 +413,12 @@ export default {
           // If backspace
           if (e.ctrlKey || e.metaKey) {
             if (
-              this.correctChars.length + this.wrongCharsInWord.length !== 0 ||
-              this.highlightedCorrect.length +
-                this.highlightedWrongInWord.length >
-                0
+              this.correctChars.length + this.wrongCharsInWord.length !== 0// &&
+              // this.highlightedCorrect.length +
+              //   this.highlightedWrongInWord.length >
+              //   0
             ) {
               // If control key held down, delete until the start of the word
-              this.replayData.push({
-                key: "CtrlBackspace",
-                time: new Date().getTime() - this.startingTime
-              });
               let length =
                 this.correctChars.length +
                 this.wrongCharsInWord.length +
@@ -592,19 +426,19 @@ export default {
               for (var i = 0; i < length; i++) {
                 this.backspace();
               }
+              this.replayData.push({ input: "", time: new Date().getTime() - this.startingTime });
             }
           } else {
             if (
-              this.correctChars.length + this.wrongCharsInWord.length !== 0 ||
               this.highlightedCorrect.length +
                 this.highlightedWrongInWord.length >
                 0
             ) {
-              this.replayData.push({
-                key: "Backspace",
-                time: new Date().getTime() - this.startingTime
-              });
               this.backspace();
+              this.replayData.push({ input: "", time: new Date().getTime() - this.startingTime });
+            } else if (this.correctChars.length + this.wrongCharsInWord.length !== 0) {
+              this.backspace();
+              this.replayData.push({ input: this.replayData[this.replayData.length-1].input.substring(0, this.replayData[this.replayData.length-1].input.length-1), time: new Date().getTime() - this.startingTime });
             }
           }
         }
@@ -621,6 +455,7 @@ export default {
           // If ctrl + x
           if (e.keyCode === 88) {
             this.backspace();
+            this.replayData.push({ input: this.replayData[this.replayData.length-1].input.substring(0, this.replayData[this.replayData.length-1].input.length-1), time: new Date().getTime() - this.startingTime });
           }
           // If the user typed a non-char
         } else if (e.shiftKey) {
@@ -651,6 +486,7 @@ export default {
       this.showCaret = false;
     },
     underlineNewWord: function() {
+      this.wordTyped = true;
       // Reset existing colours
       this.correctWords = this.correctWords + this.correctChars;
       if (
@@ -659,6 +495,10 @@ export default {
         this.correctWords.length != this.text.length
       ) {
         this.correctWords += " ";
+      }
+      let time = new Date().getTime() - this.startingTime;
+      if (time > 0) {
+        this.replayData.push({ input: this.correctChars + " ", time });
       }
       this.correctChars = "";
       // Find end of word-to-be-typed
@@ -671,12 +511,14 @@ export default {
       this.remainingText = this.remainingText.substring(i);
     },
     typeCorrectChar: function() {
+      this.wordTyped = false;
       this.correctCharsTyped += 1;
       this.correctChars += this.incompleteChars[0];
       this.incompleteChars = this.incompleteChars.substring(1);
       // If final char
       if (this.remainingText.length == 0 && this.incompleteChars.length == 0) {
         this.correctWords = this.correctWords + this.correctChars;
+        this.replayData.push({ input: this.correctChars, time: new Date().getTime() - this.startingTime });
         this.correctChars = "";
         this.showCaret = false;
         this.quoteFinished = true;
@@ -695,7 +537,7 @@ export default {
           this.pbCorrectChars = 0;
           this.pbWrongChars = 0;
         }
-        // this.increaseXP(res.data.text.length);
+        this.increaseXP(this.text.length);
         this.reconstructReplay();
 
         this.wpm =
@@ -703,30 +545,26 @@ export default {
             5 /
             (this.replayData[this.replayData.length - 1].time / 1000)) *
           60;
-        axios
-          .post(
-            `https://api-type-gg.tk/replays`,
-            {
-              textId: this.textId,
-              replayData: this.replayData,
-              username: this.getUsername
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`
-              }
+        axios.post(
+          `http://localhost:5000/replays`,
+          {
+            textId: this.textId,
+            replayData: this.replayData,
+            username: this.getUsername
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`
             }
-          )
-          .then(
+          }).then(
             res => {
               console.log(res.status);
-              // if (!this.pb.wpm || res.data.wpm > this.pb.wpm) {
-              //   this.pb = res.data;
-              //   this.pbCorrectChars = 0;
-              //   this.pbWrongChars = 0;
-              // }
-              // // this.increaseXP(res.data.text.length);
-              // this.reconstructReplay();
+              if (!this.pb.wpm || res.data.wpm > this.pb.wpm) {
+                this.pb = res.data;
+                this.pbCorrectChars = 0;
+                this.pbWrongChars = 0;
+              }
+              this.reconstructReplay();
             },
             err => {
               if (err.response.status === 401) {
@@ -736,9 +574,11 @@ export default {
               this.error = err.response.data.error;
             }
           );
+      } else {
+        this.replayData.push({ input: this.correctChars, time: new Date().getTime() - this.startingTime });
       }
     },
-    typeWrongChar: function() {
+    typeWrongChar: function(key) {
       if (this.remainingText.length != 0 || this.incompleteChars.length != 0) {
         if (this.incompleteChars.length == 0) {
           // If typing after current word
@@ -760,25 +600,26 @@ export default {
           this.remainingText = this.remainingText.substring(1);
         }
       }
+      if (!this.wordTyped ) {
+        this.replayData.push({ input: this.replayData[this.replayData.length-1].input + key, time: new Date().getTime() - this.startingTime });
+      } else {
+        this.replayData.push({ input: key, time: new Date().getTime() - this.startingTime });  
+      }
+      this.wordTyped = false;
     },
     unhighlight: function() {
-      this.replayData.push({
-        key: "Unhighlight",
-        time: new Date().getTime() - this.startingTime
-      });
       this.correctChars += this.highlightedCorrect;
       this.wrongCharsInWord += this.highlightedWrongInWord;
       this.wrongCharsAfter += this.highlightedWrongAfter;
       this.highlightedCorrect = "";
       this.highlightedWrongInWord = "";
       this.highlightedWrongAfter = "";
+      if (this.replayData.length > 0) {
+        this.replayData.push({ input: this.replayData[this.replayData.length-1].input, time: new Date().getTime() - this.startingTime });
+      }
     },
     highlight: function() {
       if (this.correctChars.length + this.wrongCharsInWord.length > 0) {
-        this.replayData.push({
-          key: "Highlight",
-          time: new Date().getTime() - this.startingTime
-        });
         this.highlightedCorrect += this.correctChars;
         this.highlightedWrongInWord += this.wrongCharsInWord;
         this.highlightedWrongAfter += this.wrongCharsAfter;
@@ -786,6 +627,9 @@ export default {
         this.wrongCharsInWord = "";
         this.wrongCharsAfter = "";
         this.showCaret = false;
+        if (this.replayData.length > 0) {
+          this.replayData.push({ input: this.replayData[this.replayData.length-1].input, time: new Date().getTime() - this.startingTime, highlighted: true });
+        }
       }
     },
     backspace: function() {
@@ -860,66 +704,27 @@ export default {
         100
       );
     },
-    playCharInReplay(i) {
+    playInputInReplay(i) {
       this.timeoutQueue.push(
         setTimeout(() => {
-          let char = this.pb.replayData[i].key;
-          if (this.pb.highlighted) {
-            if (char.length === 1) {
-              this.pb.userInput = this.pb.userInput.substring(
-                0,
-                this.pb.lastSpaceIndex
-              );
-              this.pb.userInput += char;
-              this.pb.highlighted = false;
-            } else if (char === "Backspace") {
-              this.pb.userInput = this.pb.userInput.substring(
-                0,
-                this.pb.lastSpaceIndex
-              );
-              this.pb.highlighted = false;
-            } else if (char === "Unhighlight") {
-              this.pb.highlighted = false;
-            }
-          } else {
-            if (char.length === 1) {
-              this.pb.userInput += char;
-
-              // If input is correct
-              if (
-                this.text.substring(0, this.pb.userInput.length) ===
-                this.pb.userInput
-              ) {
-                if (char === " ") {
-                  this.pb.lastSpaceIndex = this.pb.userInput.length;
-                }
-              }
+          let input = this.pb.replayData[i].input;
+          let correctChars = 0;
+          let wrongChars = 0;
+          for (var j = 0; j < input.length; j++) {
+            if (input.substring(0, j) === this.replayTextArray[0].substring(0, j)) {
+              correctChars += 1;
             } else {
-              if (char === "CtrlBackspace") {
-                this.pb.userInput = this.pb.userInput.substring(
-                  0,
-                  this.pb.lastSpaceIndex
-                );
-              } else if (char === "Backspace") {
-                this.pb.userInput = this.pb.userInput.substring(
-                  0,
-                  this.pb.userInput.length - 1
-                );
-              } else if (char === "Highlight") {
-                this.pb.highlighted = true;
-              } else if (char === "Unhighlight") {
-                this.pb.highlighted = false;
-              }
+              wrongChars += 1;
             }
           }
-          if (this.text.substring(0, this.pb.userInput.length) === this.pb.userInput) {
-            this.pbCorrectChars = this.pb.userInput.length;
-            this.pbWrongChars = 0;
-          } else if (char.length === 1) {
-            this.pbWrongChars += 1;
+          this.pbCorrectChars = this.replayInput + correctChars;
+          this.pbWrongChars = wrongChars;
+          this.pbWPM = this.pbCorrectChars / 5 / (this.pb.replayData[i].time / 60 / 1000) 
+          if (input === this.replayTextArray[0]) {
+            this.replayInput += this.replayTextArray.shift().length;
           }
-          this.pbWPM = (this.pbCorrectChars / 5 / (this.pb.replayData[i].time / 1000 / 60))
-        }, this.pb.replayData[i].time)
+        },
+        this.pb.replayData[i].time)
       );
     },
     playReplay() {
@@ -930,9 +735,10 @@ export default {
       this.pb.lastSpaceIndex = 0;
       this.replayTimeoutActive = true;
       this.timeoutQueue = [];
+
       for (var i = 0; i < this.pb.replayData.length; i++) {
         if (this.replayTimeoutActive) {
-          this.playCharInReplay(i);
+          this.playInputInReplay(i);
         } else {
           this.timeoutQueue = [];
           return;
@@ -967,7 +773,7 @@ export default {
     },
     adjustedWPM() {
       return (
-        ((this.correctWords.length + this.correctChars.length - 1) /
+        ((this.text.length) /
           5 /
           ((this.replayData[this.replayData.length-1].time - this.replayData[0].time) / 1000)) *
         60
@@ -1006,13 +812,17 @@ export default {
       this.underlineNewWord();
       axios
         .get(
-          `https://api-type-gg.tk/replays/?q={"username":"${this.getUsername}","isPB":"true","textId":"${this.textId}"}`
+          `https://api-type-gg.tk/replays/?q={"username":"${this.getUsername}","textId":"${this.textId}"}`
         )
         .then(res => {
+          console.log(res);
           if (res.data[0]) {
             this.pb = res.data[0];
             this.pbCorrectChars = 0;
             this.pbWrongChars = 0;
+            this.replayTextArray = this.text.split(" ").map(x => x + " ");
+            this.replayTextArray[this.replayTextArray.length-1] = this.replayTextArray[this.replayTextArray.length-1].substring(0, this.replayTextArray[this.replayTextArray.length-1].length-1);
+            this.replayInput = 0;
           }
           this.reconstructReplay();
         })
@@ -1107,11 +917,11 @@ hr {
 }
 .correctChars {
   color: #99cc00;
-  text-decoration: underline;
+  border-bottom: 1px solid white;
 }
 .wrongCharsInWord {
   background-color: darkred;
-  text-decoration: underline;
+  border-bottom: 1px solid white;
 }
 .wrongCharsAfter {
   background-color: darkred;
@@ -1120,13 +930,13 @@ hr {
 .highlightedCorrect {
   background-color: #0d6bdc;
   color: #99cc00;
-  text-decoration: underline;
+  border-bottom: 1px solid white;
 }
 
 .highlightedWrongInWord {
   background-color: #0d6bdc;
   color: darkred;
-  text-decoration: underline;
+  border-bottom: 1px solid white;
 }
 
 .highlightedWrongAfter {
@@ -1139,7 +949,8 @@ hr {
   margin-left: -1px;
 }
 .incompleteChars {
-  text-decoration: underline;
+  border-bottom: 1px solid white;
+  margin-top: -5px;
 }
 
 .pb-container {

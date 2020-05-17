@@ -1,6 +1,9 @@
 <template>
   <div>
     <b-table
+      small
+      dark
+      hover
       style="color: white"
       :items="leaderboard"
       :fields="fields"
@@ -12,8 +15,8 @@
         trunc2dp(data.item.wpm)
       }}</template>
 
-      <template v-slot:cell(accuracy)="data"
-        >{{ trunc2dp(data.item.accuracy) }}%</template
+      <template v-slot:cell(acc)="data"
+        >{{ trunc2dp(data.item.acc) }}%</template
       >
 
       <template v-slot:cell(performance)="data">{{
@@ -37,11 +40,11 @@ export default {
           label: "WPM",
         },
         {
-          key: "accuracy",
+          key: "acc",
           label: "ACCURACY",
         },
         {
-          key: "username",
+          key: "_id",
           label: "USERNAME",
         },
         {
@@ -61,7 +64,8 @@ export default {
   created() {
     axios
       .get(
-        `https://api-type-gg.tk/replays/?q={"textId":"${this.textId}","isPB":"true"}`
+        // `https://api-type-gg.tk/replays/?q={"textId":"${this.textId}","isPB":"true"}`
+        `http://localhost:5000/rankings/${this.textId}`
       )
       .then((res) => {
         this.leaderboard = res.data;

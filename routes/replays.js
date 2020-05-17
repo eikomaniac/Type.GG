@@ -83,71 +83,61 @@ router.post("/", async (req, res) => {
     res.status(400).json({ message: err });
   }
 
-  // Verify & validate replay data
-  let userInput = "";
-  let lastSpaceIndex = 0;
-  let errorCorrected = true;
+  let textArray = text.split(" ").map(x => x + " ");
+  textArray[textArray.length-1] = textArray[textArray.length-1].substring(0, textArray[textArray.length-1].length-1);
+
   let totalErrors = 0;
-  let highlighted = false;
   let correctCharsTyped = 0;
+  let wordTyped = true;
+  let errorCorrected = true;
+
   for (var i = 0; i < req.body.replayData.length; i++) {
-    let char = req.body.replayData[i].key;
-    if (highlighted) {
-      if (char.length === 1) {
-        userInput = userInput.substring(0, lastSpaceIndex);
-        userInput += char;
-        highlighted = false;
-      } else if (char === "Backspace") {
-        userInput = userInput.substring(0, lastSpaceIndex);
-        highlighted = false;
-      } else if (char === "Unhighlight") {
-        highlighted = false;
+    let input = req.body.replayData[i].input;
+    
+    // input & time data validation
+    if (wordTyped) {
+      if (req.body.replayData[i].time < 0) {
+        error = "Corrupt time in replay";
+        break;
+      }
+      if (input.length !== 1) {
+        error = "Corrupt replay data - 1";
+        break;
       }
     } else {
-      if (char.length === 1) {
-        userInput += char;
-
-        // If input is correct
-        if (text.substring(0, userInput.length) === userInput) {
-          correctCharsTyped += 1;
-          if (char === " ") {
-            lastSpaceIndex = userInput.length;
-          }
-        } else if (errorCorrected) {
-          totalErrors += 1;
-          errorCorrected = false;
+      if (i > 0) {
+        if (req.body.replayData[i-1].time > req.body.replayData[i].time) {
+          error = "Corrupt time in replay";
+          break;
         }
-      } else {
-        if (char === "CtrlBackspace") {
-          userInput = userInput.substring(0, lastSpaceIndex);
-        } else if (char === "Backspace") {
-          userInput = userInput.substring(0, userInput.length - 1);
-        } else if (char === "Highlight") {
-          highlighted = true;
-        } else if (char === "Unhighlight") {
-          highlighted = false;
-        } else {
-          error = "Corrupt keys in replay";
+        if (input.length - req.body.replayData[i-1].input.length > 1) {
+          error = "Corrupt replay data - 2";
+          break;
         }
       }
     }
-    if (
-      (i > 0 &&
-        req.body.replayData[i].time < req.body.replayData[i - 1].time) ||
-      req.body.replayData[i].time < 0
-    ) {
-      error = "Corrupt time in replay";
-    }
-    if (error.length > 0) {
-      break;
-    }
-    if (text.substring(0, userInput.length) === userInput) {
-      errorCorrected = true;
+
+    if (input === textArray[0]) {
+      textArray.shift();
+      correctCharsTyped += 1;
+      wordTyped = true;
+      if (textArray.length === 0 && i !== req.body.replayData.length-1) {
+        error = "Corrupt replay data - 3";
+        break;
+      }
+    } else if (input === textArray[0].substring(0, input.length)) {
+        if (wordTyped || (i > 0 && input.length > req.body.replayData[i-1].input.length)) {
+          wordTyped = false;
+          correctCharsTyped += 1;
+          errorCorrected = true;
+        }
+    } else if (errorCorrected) {
+      wordTyped = false;
+      totalErrors += 1;
+      errorCorrected = false;
     }
   }
-  if (userInput !== text) {
-    error = `Corrupt replay: ${userInput}`;
-  }
+  
   let calculatedWPM =
     text.length /
     5 /
@@ -159,138 +149,30 @@ router.post("/", async (req, res) => {
     error = "Cheated score";
   }
 
-  let existingPB = await Replay.findOne(
-    { textId: req.body.textId, username: username, isPB: true },
-    "wpm"
-  )
-    .sort("-wpm")
-    .catch((err) => console.log(err));
+  let stats = await Stats.findOne({ _id: username }).catch((err) =>
+    console.log(err)
+  );
+  stats.xp += text.length;
+  stats.races += 1;
+  stats.save();
 
-  let isPB = true;
+  const newReplay = new Replay({
+    textId: req.body.textId,
+    text: text,
+    username: username,
+    replayData: req.body.replayData,
+    wpm: calculatedWPM,
+    accuracy: calculatedAccuracy,
+  });
 
-  if (error.length > 0) {
-    res.status(400).json({ error });
-  } else {
-    if (existingPB) {
-      isPB = calculatedWPM*10000 > existingPB.wpm*10000;
-      if (isPB) {
-        existingPB.set('isPB', false);
-        existingPB.save();
-        let textDoc = await Text.findById(req.body.textId);
-        let pp =
-          100 *
-          (Math.pow(
-            Math.exp(1),
-            (calculatedWPM * Math.log(11)) / textDoc.maxWPM
-          ) -
-            1);
-
-        if (calculatedWPM*10000 > textDoc.maxWPM*10000) {
-          textDoc.maxWPM = calculatedWPM;
-          let i;
-          for (i = 0; i < textDoc.leaderboard.length; i++) {
-            let userWPM = textDoc.leaderboard[i].wpm;
-            if (textDoc.leaderboard[i].username === username) {
-              textDoc.leaderboard.set(i, {
-                username: username,
-                pp: 1000,
-                wpm: calculatedWPM,
-                acc: calculatedAccuracy,
-              });
-            } else {
-              textDoc.leaderboard.set(i, {
-                username: textDoc.leaderboard[i].username,
-                pp:
-                  100 *
-                  (Math.pow(
-                    Math.exp(1),
-                    (userWPM * Math.log(11)) / textDoc.maxWPM
-                  ) -
-                    1),
-                wpm: userWPM,
-                acc: parseFloat(textDoc.leaderboard[i].acc),
-              });
-            }
-          }
-        } else {
-          for (i = 0; i < textDoc.leaderboard.length; i++) {
-            let userWPM = textDoc.leaderboard[i].wpm;
-            if (textDoc.leaderboard[i].username === username) {
-              textDoc.leaderboard.set(i, {
-                username: username,
-                pp: pp,
-                wpm: calculatedWPM,
-                acc: calculatedAccuracy,
-              });
-            }
-          }
-        }
-        textDoc.save();
-      }
-    } else {
-      let textDoc = await Text.findById(req.body.textId);
-      let pp =
-        100 *
-        (Math.pow(
-          Math.exp(1),
-          (calculatedWPM * Math.log(11)) / textDoc.maxWPM
-        ) -
-          1);
-      if (calculatedWPM*10000 > textDoc.maxWPM*10000) {
-        // if new WR on quote
-        pp = 1000;
-        textDoc.maxWPM = calculatedWPM;
-        let i;
-        for (i = 0; i < textDoc.leaderboard.length; i++) {
-          let userWPM = textDoc.leaderboard[i].wpm;
-          textDoc.leaderboard.set(i, {
-            username: textDoc.leaderboard[i].username,
-            pp:
-              100 *
-              (Math.pow(
-                Math.exp(1),
-                (userWPM * Math.log(11)) / textDoc.maxWPM
-              ) -
-                1),
-            wpm: userWPM,
-            acc: calculatedAccuracy,
-          });
-        }
-      }
-      textDoc.leaderboard.push({
-        username: username,
-        pp: pp,
-        wpm: calculatedWPM,
-        acc: calculatedAccuracy,
-      });
-      textDoc.save();
-    }
-
-    let stats = await Stats.findOne({ _id: username }).catch((err) =>
-      console.log(err)
-    );
-    stats.xp += text.length;
-    stats.races += 1;
-    stats.save();
-
-    const newReplay = new Replay({
-      textId: req.body.textId,
-      text: text,
-      username: username,
-      isPB: isPB,
-      replayData: req.body.replayData,
-      wpm: calculatedWPM,
-      accuracy: calculatedAccuracy,
+  newReplay
+    .save()
+    .then((replay) => {
+      res.status(201).json(replay);
+    })
+    .catch((err) => {
+      res.status(500).json(err);
     });
-    newReplay
-      .save()
-      .then((replay) => {
-        res.status(201).json(replay);
-      })
-      .catch((err) => {
-        res.status(500).json(err);
-      });
-  }
 });
 
 // TODO

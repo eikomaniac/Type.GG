@@ -10,10 +10,6 @@ const ReplaySchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  isPB: {
-    type: Boolean,
-    required: true,
-  },
   textId: {
     type: String,
     required: true,

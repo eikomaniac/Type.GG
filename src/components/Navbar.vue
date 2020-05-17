@@ -30,14 +30,14 @@
               <!-- Using 'button-content' slot-->
               <template v-slot:button-content>
                 {{ getUsername }}
-                <!-- | Lv: {{ level }} | -->
-                <!-- {{ getXP - totalXPbeforeLevel }}/{{ xpToLevel }}xp -->
-                <!-- <b-progress style="height:5px" :max="xpToLevel">
+                | Lv: {{ level }} |
+                {{ getXP - totalXPbeforeLevel }}/{{ xpToLevel }}xp
+                <b-progress style="height:5px" :max="xpToLevel">
                   <b-progress-bar
                     :value="getXP - totalXPbeforeLevel"
                     variant="success"
                   ></b-progress-bar>
-                </b-progress> -->
+                </b-progress>
               </template>
               <b-dropdown-item to="/profile">Profile</b-dropdown-item>
               <b-dropdown-item @click="logout">Logout</b-dropdown-item>
@@ -101,7 +101,7 @@ export default {
       .then((res) => {
         this.stats = res.data;
         console.log(res.data);
-        // this.setXP(this.stats.xp);
+        this.setXP(this.stats.xp);
       })
       .catch((err) => console.log(err));
   },
