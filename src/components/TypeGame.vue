@@ -374,12 +374,7 @@ export default {
           this.backspace();
           this.replayData.push({ input: "", time: new Date().getTime() - this.startingTime });
         }
-        let index = (this.correctChars + this.wrongCharsInWord + this.wrongCharsAfter).length;
-        if (e.key.match(/^[a-zA-Z0-9]$/g)) {
-          if (this.replayData[0] && (this.replayData[this.replayData.length - 1].input !== "" && !this.replayData[this.replayData.length - 1].input.substring(this.replayData[this.replayData.length - 1].input.length-1, this.replayData[this.replayData.length - 1].input.length).match(/^[a-zA-Z0-9]$/g))) {
-            this.ctrlBackspaceIndexes.push(index);
-          }
-        }
+
         if (this.wrongCharsInWord.length > 0) {
           // If already incorrect
           this.typeWrongChar(e.key);
@@ -487,6 +482,13 @@ export default {
           this.highlight();
         }
       }
+      let index = (this.correctChars + this.wrongCharsInWord + this.wrongCharsAfter).length - 1;
+      if (e.key.match(/^[a-zA-Z0-9]$/g)) {
+        if (this.replayData[0] && (this.replayData[this.replayData.length - 2].input !== "" && !this.replayData[this.replayData.length - 2].input.substring(this.replayData[this.replayData.length - 2].input.length-1, this.replayData[this.replayData.length - 2].input.length).match(/^[a-zA-Z0-9]$/g))) {
+          this.ctrlBackspaceIndexes.push(index);
+        }
+      }
+      console.log(this.ctrlBackspaceIndexes);
     },
     keyUpHandler: function(e) {
       this.capsLockOn = e.getModifierState("CapsLock");
