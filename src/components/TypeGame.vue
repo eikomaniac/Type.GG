@@ -374,7 +374,12 @@ export default {
           this.backspace();
           this.replayData.push({ input: "", time: new Date().getTime() - this.startingTime });
         }
-
+        let index = (this.correctChars + this.wrongCharsInWord + this.wrongCharsAfter).length;
+        if (e.key.match(/^[a-zA-Z0-9]$/g)) {
+          if (this.replayData[0] && (this.replayData[this.replayData.length - 1].input !== "" && !this.replayData[this.replayData.length - 1].input.substring(this.replayData[this.replayData.length - 1].input.length-1, this.replayData[this.replayData.length - 1].input.length).match(/^[a-zA-Z0-9]$/g))) {
+            this.ctrlBackspaceIndexes.push(index);
+          }
+        }
         if (this.wrongCharsInWord.length > 0) {
           // If already incorrect
           this.typeWrongChar(e.key);
@@ -424,18 +429,13 @@ export default {
                 index = this.ctrlBackspaceIndexes[this.ctrlBackspaceIndexes.length-1];
               }
 
+              let typedWord = this.replayData[this.replayData.length-1].input;
+
               for (var i = 0; i < length-index; i++) {
                 this.backspace();
               }
-              
-              // let lastNum = this.ctrlBackspaceIndexes[this.ctrlBackspaceIndexes.length-1];
-              // let secondLastNum = this.ctrlBackspaceIndexes[this.ctrlBackspaceIndexes.length-2];
-              // while (secondLastNum + 1 === lastNum) {
-              //   this.ctrlBackspaceIndexes.pop();
-              //   lastNum = this.ctrlBackspaceIndexes[this.ctrlBackspaceIndexes.length-1];
-              //   secondLastNum = this.ctrlBackspaceIndexes[this.ctrlBackspaceIndexes.length-2];
-              // }
-              this.replayData.push({ input: "", time: new Date().getTime() - this.startingTime });
+
+              this.replayData.push({ input: typedWord.substring(0, index), time: new Date().getTime() - this.startingTime });
             }
           } else {
             if (
@@ -482,12 +482,7 @@ export default {
           this.highlight();
         }
       }
-      let index = (this.correctChars + this.wrongCharsInWord + this.wrongCharsAfter).length - 1;
-      if (e.key.match(/^[a-zA-Z0-9]$/g)) {
-        if (this.replayData[0] && (this.replayData[this.replayData.length - 2].input !== "" && !this.replayData[this.replayData.length - 2].input.substring(this.replayData[this.replayData.length - 2].input.length-1, this.replayData[this.replayData.length - 2].input.length).match(/^[a-zA-Z0-9]$/g))) {
-          this.ctrlBackspaceIndexes.push(index);
-        }
-      }
+      console.log(this.ctrlBackspaceIndexes);
     },
     keyUpHandler: function(e) {
       this.capsLockOn = e.getModifierState("CapsLock");
