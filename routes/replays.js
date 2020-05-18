@@ -145,8 +145,12 @@ router.post("/", async (req, res) => {
   let calculatedAccuracy =
     (correctCharsTyped / (correctCharsTyped + totalErrors)) * 100;
   
-  if (calculatedWPM*10000 > 450*10000) {
+  if (calculatedWPM > 450) {
     error = "Cheated score";
+  }
+
+  if (error.length > 0) {
+    res.status(400).json(error);
   }
 
   let stats = await Stats.findOne({ _id: username }).catch((err) =>

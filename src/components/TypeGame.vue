@@ -115,6 +115,7 @@ export default {
       replayTimeout: null,
       replayTimeoutActive: true,
       pb: {},
+      ctrlBackspaceIndexes: [],
       pbWPM: 0,
       pbCorrectChars: 0,
       pbWrongChars: 0,
@@ -143,9 +144,10 @@ export default {
           segment = "";
         }
       }
+      if (segment !== "") {
+        segments.push(segment);
+      }
 
-      let totalErrors = 0;
-      let correctCharsTyped = 0;
       let errorCorrected = true;
       let wordTyped = true;
       let segmentInput = "";
@@ -160,7 +162,6 @@ export default {
         if (input === textArray[0]) {
           segmentInput += input;
           textArray.shift();
-          correctCharsTyped += 1;
           wordTyped = true;
           if (segmentInput === segments[segmentIndex]) {
             PBoverallWPMs.push(this.trunc2dp(segments.slice(0,segmentIndex+1).join("").length / 5 / (this.pb.replayData[i].time / 60 / 1000)));
@@ -171,12 +172,10 @@ export default {
           } 
         } else if (input === textArray[0].substring(0, input.length)) {
             if (wordTyped || (i > 0 && input.length > this.pb.replayData[i-1].input.length)) {
-              correctCharsTyped += 1;
               wordTyped = false;
               errorCorrected = true;
             }
         } else if (errorCorrected) {
-          totalErrors += 1;
           errorCorrected = false;
         }
       }
@@ -192,8 +191,6 @@ export default {
         segmentWPMs = [];
         overallWPMs = [];
         
-        totalErrors = 0;
-        correctCharsTyped = 0;
         errorCorrected = true;
         wordTyped = true;
         segmentInput = "";
@@ -206,7 +203,6 @@ export default {
           if (input === textArray[0]) {
             segmentInput += input;
             textArray.shift();
-            correctCharsTyped += 1;
             wordTyped = true;
             if (segmentInput === segments[segmentIndex]) {
               overallWPMs.push(this.trunc2dp(segments.slice(0,segmentIndex+1).join("").length / 5 / (this.replayData[i].time / 60 / 1000)));
@@ -222,19 +218,15 @@ export default {
             } 
           } else if (input === textArray[0].substring(0, input.length)) {
               if (wordTyped || (i > 0 && input.length > this.replayData[i-1].input.length)) {
-                correctCharsTyped += 1;
                 wordTyped = false;
                 errorCorrected = true;
               }
           } else if (errorCorrected) {
-            totalErrors += 1;
             errorCorrected = false;
           }
         }
       }
 
-      console.log(totalErrors);
-      console.log(correctCharsTyped);
       this.datacollection = {
         labels: segments,
         datasets: [
@@ -382,6 +374,12 @@ export default {
           this.backspace();
           this.replayData.push({ input: "", time: new Date().getTime() - this.startingTime });
         }
+        let index = (this.correctChars + this.wrongCharsInWord + this.wrongCharsAfter).length;
+        if (e.key.match(/^[a-zA-Z0-9]$/g)) {
+          if (this.replayData[0] && (this.replayData[this.replayData.length - 1].input !== "" && !this.replayData[this.replayData.length - 1].input.substring(this.replayData[this.replayData.length - 1].input.length-1, this.replayData[this.replayData.length - 1].input.length).match(/^[a-zA-Z0-9]$/g))) {
+            this.ctrlBackspaceIndexes.push(index);
+          }
+        }
         if (this.wrongCharsInWord.length > 0) {
           // If already incorrect
           this.typeWrongChar(e.key);
@@ -418,14 +416,30 @@ export default {
               //   this.highlightedWrongInWord.length >
               //   0
             ) {
-              // If control key held down, delete until the start of the word
+              // If control key held down, ctrl backspace.
               let length =
                 this.correctChars.length +
                 this.wrongCharsInWord.length +
                 this.wrongCharsAfter.length;
-              for (var i = 0; i < length; i++) {
+
+              let index;
+              if (this.ctrlBackspaceIndexes.length === 0) {
+                index = 0;
+              } else {
+                index = this.ctrlBackspaceIndexes[this.ctrlBackspaceIndexes.length-1];
+              }
+
+              for (var i = 0; i < length-index; i++) {
                 this.backspace();
               }
+              
+              // let lastNum = this.ctrlBackspaceIndexes[this.ctrlBackspaceIndexes.length-1];
+              // let secondLastNum = this.ctrlBackspaceIndexes[this.ctrlBackspaceIndexes.length-2];
+              // while (secondLastNum + 1 === lastNum) {
+              //   this.ctrlBackspaceIndexes.pop();
+              //   lastNum = this.ctrlBackspaceIndexes[this.ctrlBackspaceIndexes.length-1];
+              //   secondLastNum = this.ctrlBackspaceIndexes[this.ctrlBackspaceIndexes.length-2];
+              // }
               this.replayData.push({ input: "", time: new Date().getTime() - this.startingTime });
             }
           } else {
@@ -487,6 +501,7 @@ export default {
     },
     underlineNewWord: function() {
       this.wordTyped = true;
+      this.ctrlBackspaceIndexes = [];
       // Reset existing colours
       this.correctWords = this.correctWords + this.correctChars;
       if (
@@ -689,6 +704,9 @@ export default {
           0,
           this.correctChars.length - 1
         );
+      }
+      if ((this.correctChars + this.wrongCharsInWord + this.wrongCharsAfter).length <= this.ctrlBackspaceIndexes[this.ctrlBackspaceIndexes.length - 1]) {
+        this.ctrlBackspaceIndexes.pop();
       }
     },
     calculateWPM() {
