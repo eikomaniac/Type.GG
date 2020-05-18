@@ -488,7 +488,6 @@ export default {
           this.ctrlBackspaceIndexes.push(index);
         }
       }
-      console.log(this.ctrlBackspaceIndexes);
     },
     keyUpHandler: function(e) {
       this.capsLockOn = e.getModifierState("CapsLock");
